@@ -58,6 +58,10 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+
+    dependencies {
+        implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
+    }
 }
 
 flutter {

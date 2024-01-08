@@ -1,6 +1,10 @@
+import 'package:app_position/core/const.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations(const [DeviceOrientation.portraitUp]);
   runApp(const MainApp());
 }
 
@@ -9,12 +13,11 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
+    return MaterialApp(
+      title: 'App Position',
+      routes: AppConstants.routes,
+      initialRoute: AppConstants.initialRoute,
+      debugShowCheckedModeBanner: false,
     );
   }
 }
