@@ -13,6 +13,8 @@ dependencies:
   google_mlkit_pose_detection: ^0.10.0 # Pose detection
   path_provider: ^2.1.1 # File path
   wakelock: ^0.6.2 # WakeLock
+  flutter_tts: ^3.8.5 # TTS (Text to Speech)
+  provider: ^6.1.1 # Provider for state management
 
 dev_dependencies:
   flutter_test:
