@@ -36,26 +36,60 @@ class PosePainter extends CustomPainter {
 
     for (final pose in poses) {
       pose.landmarks.forEach((_, landmark) {
+        final positionX = translateX(
+          landmark.x,
+          size,
+          imageSize,
+          rotation,
+          cameraLensDirection,
+        );
+        final positionY = translateY(
+          landmark.y,
+          size,
+          imageSize,
+          rotation,
+          cameraLensDirection,
+        );
         canvas.drawCircle(
             Offset(
+              positionX,
+              positionY,
+            ),
+            1,
+            paint);
+      });
+
+      TextSpan span = const TextSpan(
+          style: TextStyle(color: Colors.grey), text: '5*\nAngle');
+      TextPainter tp = TextPainter(
+        text: span,
+        textAlign: TextAlign.left,
+        textDirection: TextDirection.ltr,
+      );
+      tp.layout();
+
+      void paintAngle(PoseLandmarkType type1) {
+        final PoseLandmark joint1 = pose.landmarks[type1]!;
+
+        tp.paint(
+          canvas,
+          Offset(
               translateX(
-                landmark.x,
+                joint1.x,
                 size,
                 imageSize,
                 rotation,
                 cameraLensDirection,
               ),
               translateY(
-                landmark.y,
+                joint1.y,
                 size,
                 imageSize,
                 rotation,
                 cameraLensDirection,
-              ),
-            ),
-            1,
-            paint);
-      });
+              )),
+        );
+      }
 
       void paintLine(
           PoseLandmarkType type1, PoseLandmarkType type2, Paint paintType) {
@@ -110,6 +144,9 @@ class PosePainter extends CustomPainter {
           PoseLandmarkType.leftShoulder, PoseLandmarkType.leftHip, leftPaint);
       paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip,
           rightPaint);
+      
+      paintAngle(PoseLandmarkType.leftElbow);
+      paintAngle(PoseLandmarkType.rightElbow);
 
       //Draw legs
       paintLine(PoseLandmarkType.leftHip, PoseLandmarkType.leftKnee, leftPaint);

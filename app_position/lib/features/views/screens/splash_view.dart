@@ -1,6 +1,8 @@
 import 'package:app_position/features/views/screens/pose_detector_view.dart';
 import 'package:app_position/features/views/screens/settings_view.dart';
+import 'package:app_position/features/views/widgets/custom_elevated_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class SplashView extends StatelessWidget {
   const SplashView({super.key});
@@ -9,26 +11,39 @@ class SplashView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Icono grande
-            const Icon(Icons.fitness_center, size: 150.0, color: Colors.blue),
-            const Text('App Position', style: TextStyle(fontSize: 30.0)),
+            Expanded(
+              child: SvgPicture.asset(
+                'assets/svg/splash_image.svg',
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.bottomCenter,
+              ),
+            ),
+            const SizedBox(height: 20.0),
+            const Text('App Position',
+                textAlign: TextAlign.center, style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.w500)),
             const SizedBox(height: 20.0),
             // Botones
-            ElevatedButton.icon(
-                onPressed: () =>
-                    Navigator.pushNamed(context, PoseDetectorView.route),
-                icon: const Icon(Icons.directions_run),
-                label: const Text('Ejercicios')),
+            CustomElevatedButton(
+              title: 'Ejercitarse',
+              onPressed: () => Navigator.pushNamed(context, PoseDetectorView.route),
+            ),
             const SizedBox(height: 10.0),
-            ElevatedButton.icon(
-                onPressed: () =>
-                    Navigator.pushNamed(context, SettingsView.route),
-                icon: const Icon(Icons.settings),
-                label: const Text('Configuración')),
+            CustomElevatedButton.outlined(
+              title: 'Progreso',
+              onPressed: () => false,
+            ),
+            const SizedBox(height: 10.0),
+            CustomElevatedButton.outlined(
+              title: 'Configuración',
+              onPressed: () => Navigator.pushNamed(context, SettingsView.route),
+            ),
           ],
         ),
       ),

@@ -25,20 +25,19 @@ class MainApp extends StatelessWidget {
         title: 'App Position',
         routes: AppConstants.routes,
         theme: ThemeData.light().copyWith(
-          floatingActionButtonTheme: const FloatingActionButtonThemeData(
-            foregroundColor: Colors.blue,
+          floatingActionButtonTheme: FloatingActionButtonThemeData(
+            foregroundColor: AppConstants.colors.primary,
           ),
-          iconTheme: const IconThemeData(
-            color: Colors.blue,
+          iconTheme: IconThemeData(
+            color: AppConstants.colors.primary,
           ),
           iconButtonTheme: IconButtonThemeData(
-              style: TextButton.styleFrom(
-            foregroundColor: Colors.blue,
+              style: IconButton.styleFrom(
+            foregroundColor: AppConstants.colors.primary,
           )),
           elevatedButtonTheme: ElevatedButtonThemeData(
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.blue,
-              iconColor: Colors.blue,
+            style: ElevatedButton.styleFrom(
+              foregroundColor: const Color(0xFFFFFFFF),
             ),
           ),
         ),

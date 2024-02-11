@@ -18,5 +18,7 @@ class AppConstants {
 
 class ConstantColors {
   // Here add app colors
-  final Color primary = const Color(0xffffffff);
+  final Color primary = const Color(0xFF256D67);
+  final Color secondary = const Color(0xFFFFBC57);
+  final Color disabled = const Color(0xFFD9D9D9);
 }

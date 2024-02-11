@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:app_position/core/const.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -106,10 +107,12 @@ class _CameraViewState extends State<CameraView> {
           width: 50.0,
           child: FloatingActionButton(
             heroTag: Object(),
+            shape: const CircleBorder(),
             onPressed: () => Navigator.of(context).pop(),
-            backgroundColor: Colors.black54,
-            child: const Icon(
+            backgroundColor: Colors.white,
+            child: Icon(
               Icons.arrow_back_ios_outlined,
+              color: AppConstants.colors.primary,
               size: 20,
             ),
           ),
@@ -124,12 +127,17 @@ class _CameraViewState extends State<CameraView> {
           width: 50.0,
           child: FloatingActionButton(
             heroTag: Object(),
+            elevation: 0,
+            shape: CircleBorder(
+              side: BorderSide(
+                color: AppConstants.colors.primary,
+              )
+            ),
             onPressed: _switchLiveCamera,
-            backgroundColor: Colors.black54,
+            backgroundColor: Colors.white,
             child: Icon(
-              Platform.isIOS
-                  ? Icons.flip_camera_ios_outlined
-                  : Icons.flip_camera_android_outlined,
+              Platform.isIOS ? Icons.flip_camera_ios_outlined : Icons.flip_camera_android_outlined,
+              color: AppConstants.colors.primary,
               size: 25,
             ),
           ),
@@ -241,9 +249,7 @@ class _CameraViewState extends State<CameraView> {
       // Set to ResolutionPreset.high. Do NOT set it to ResolutionPreset.max because for some phones does NOT work.
       ResolutionPreset.low,
       enableAudio: false,
-      imageFormatGroup: Platform.isAndroid
-          ? ImageFormatGroup.nv21
-          : ImageFormatGroup.bgra8888,
+      imageFormatGroup: Platform.isAndroid ? ImageFormatGroup.nv21 : ImageFormatGroup.bgra8888,
     );
     if (_controller == null) return;
     await _controller?.initialize();
@@ -319,16 +325,14 @@ class _CameraViewState extends State<CameraView> {
     if (Platform.isIOS) {
       rotation = InputImageRotationValue.fromRawValue(sensorOrientation);
     } else if (Platform.isAndroid) {
-      var rotationCompensation =
-          _orientations[_controller!.value.deviceOrientation];
+      var rotationCompensation = _orientations[_controller!.value.deviceOrientation];
       if (rotationCompensation == null) return null;
       if (camera.lensDirection == CameraLensDirection.front) {
         // front-facing
         rotationCompensation = (sensorOrientation + rotationCompensation) % 360;
       } else {
         // back-facing
-        rotationCompensation =
-            (sensorOrientation - rotationCompensation + 360) % 360;
+        rotationCompensation = (sensorOrientation - rotationCompensation + 360) % 360;
       }
       rotation = InputImageRotationValue.fromRawValue(rotationCompensation);
       // print('rotationCompensation: $rotationCompensation');
