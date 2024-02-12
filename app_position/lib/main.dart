@@ -1,4 +1,5 @@
 import 'package:app_position/core/const.dart';
+import 'package:app_position/features/providers/camera.dart';
 import 'package:app_position/features/providers/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,7 +21,12 @@ class MainApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => Settings()),
+        ChangeNotifierProvider(create: (_) => Camera()),
       ],
+      builder: (_, __) {
+        if (__ == null) return const SizedBox();
+        return __;
+      },
       child: MaterialApp(
         title: 'App Position',
         routes: AppConstants.routes,
