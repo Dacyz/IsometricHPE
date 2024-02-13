@@ -60,7 +60,7 @@ class PosePainter extends CustomPainter {
             paint);
       });
 
-      void paintAngle(PoseLandmarkType type1, PoseLandmarkType type2, PoseLandmarkType type3) {
+      double paintAngle(PoseLandmarkType type1, PoseLandmarkType type2, PoseLandmarkType type3) {
         final PoseLandmark joint1 = pose.landmarks[type1]!;
         final middlePoint = Offset(
             translateX(
@@ -110,19 +110,21 @@ class PosePainter extends CustomPainter {
               cameraLensDirection,
             ));
         final angle = calcularAnguloEntreTresPuntos(startPoint, middlePoint, endPoint);
-        TextSpan span =
-            TextSpan(style: const TextStyle(color: Colors.green, fontWeight: FontWeight.w800), text: '\n${angle}');
+        TextSpan span = TextSpan(
+            style: const TextStyle(color: Colors.green, fontWeight: FontWeight.w800),
+            text: '\n${angle.toStringAsFixed(2)}');
         TextPainter tp = TextPainter(
           text: span,
           textAlign: TextAlign.left,
           textDirection: TextDirection.ltr,
         );
-
         tp.layout();
         tp.paint(
           canvas,
           middlePoint,
         );
+        tp.paint(canvas, Offset(16, 16));
+        return angle;
       }
 
       void paintLine(PoseLandmarkType type1, PoseLandmarkType type2, Paint paintType) {
@@ -172,8 +174,19 @@ class PosePainter extends CustomPainter {
       paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftHip, leftPaint);
       paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip, rightPaint);
 
-      paintAngle(PoseLandmarkType.leftElbow, PoseLandmarkType.leftShoulder, PoseLandmarkType.leftWrist);
-      paintAngle(PoseLandmarkType.rightElbow, PoseLandmarkType.rightShoulder, PoseLandmarkType.rightWrist);
+      final angle1 = paintAngle(PoseLandmarkType.leftElbow, PoseLandmarkType.leftShoulder, PoseLandmarkType.leftWrist);
+      final angle2 = paintAngle(PoseLandmarkType.rightElbow, PoseLandmarkType.rightShoulder, PoseLandmarkType.rightWrist);
+
+      final correct = angle1 < 90 && angle2 < 90;
+        TextPainter tp2 = TextPainter(
+          text: TextSpan(
+              style: TextStyle(color: correct ? Colors.green : Colors.red, fontWeight: FontWeight.w800),
+              text: '\n${correct ? 'correcto' : 'incorrecto'}'),
+          textAlign: TextAlign.left,
+          textDirection: TextDirection.ltr,
+        );
+        tp2.layout();
+        tp2.paint(canvas, Offset(size.width * 0.5, size.height * 0.5));
       //Draw legs
       paintLine(PoseLandmarkType.leftHip, PoseLandmarkType.leftKnee, leftPaint);
       paintLine(PoseLandmarkType.leftKnee, PoseLandmarkType.leftAnkle, leftPaint);
@@ -182,7 +195,7 @@ class PosePainter extends CustomPainter {
     }
   }
 
-  String calcularAnguloEntreTresPuntos(Offset puntoA, Offset puntoB, Offset puntoC) {
+  double calcularAnguloEntreTresPuntos(Offset puntoA, Offset puntoB, Offset puntoC) {
     // Calcular los vectores AB y BC
     Offset vectorAB = Offset(puntoB.dx - puntoA.dx, puntoB.dy - puntoA.dy);
     Offset vectorBC = Offset(puntoC.dx - puntoB.dx, puntoC.dy - puntoB.dy);
@@ -202,7 +215,7 @@ class PosePainter extends CustomPainter {
     // Convertir el ángulo a grados si es necesario
     double anguloEnGrados = (diferenciaAngulos * 180) / pi;
 
-    return anguloEnGrados.toStringAsFixed(2);
+    return anguloEnGrados;
   }
 
   @override
