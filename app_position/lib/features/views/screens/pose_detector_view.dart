@@ -117,12 +117,9 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
     return Scaffold(
       body: Column(
         children: [
-          const Expanded(
-            child: CameraView(),
-          ),
+          const Expanded(child: CameraView()),
           Container(
             color: Colors.white,
-            height: 350,
             padding: const EdgeInsets.symmetric(horizontal: 24),
             width: double.infinity,
             child: Column(
@@ -145,15 +142,13 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
                               },
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     FloatingActionButton(
                       elevation: 0,
-                      shape: CircleBorder(
-                          side: BorderSide(color: AppConstants.colors.primary)),
+                      shape: CircleBorder(side: BorderSide(color: AppConstants.colors.primary)),
                       onPressed: isCameraButtonEnabled
                           ? () {
-                              final camera =
-                                  Provider.of<Camera>(context, listen: false);
+                              final camera = Provider.of<Camera>(context, listen: false);
                               camera.switchLiveCamera();
                             }
                           : null,
@@ -161,9 +156,7 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
                       backgroundColor: Colors.white,
                       child: Icon(
                         Icons.flip_camera_android_outlined,
-                        color: isCameraButtonEnabled
-                            ? AppConstants.colors.primary
-                            : Colors.grey,
+                        color: isCameraButtonEnabled ? AppConstants.colors.primary : Colors.grey,
                         size: 25,
                       ),
                     )
@@ -172,7 +165,7 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
                 const SizedBox(height: 16),
                 Text(
                   '${(millisecondsElapsed ~/ 60000).toString().padLeft(2, '0')}:${((millisecondsElapsed ~/ 1000) % 60).toString().padLeft(2, '0')}.${((millisecondsElapsed % 1000) ~/ 10).toString().padLeft(2, '0')}', // Actualizado para mostrar milisegundos
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 72,
                     fontWeight: FontWeight.w500,
                   ),
@@ -182,6 +175,16 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
                   minHeight: 8,
                   borderRadius: BorderRadius.circular(8),
                   color: AppConstants.colors.primary,
+                ),
+                const SizedBox(height: 16),
+                ListView.builder(
+                  itemBuilder: (context, index) {
+                    return Text('$currentExercise');
+                  },
+                  itemCount: 0,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: EdgeInsets.zero,
                 ),
               ],
             ),
