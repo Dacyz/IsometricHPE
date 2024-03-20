@@ -37,25 +37,31 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
   }
 
   void startTimer(int exerciseTime) {
-    timer = Timer.periodic(const Duration(milliseconds: 10), (Timer t) { // Cambiado a milisegundos
-      setState(() {
-        millisecondsElapsed += 10; // Incrementado en 10 milisegundos
-        if (millisecondsElapsed >= totalTime * 1000) { // Cambiado a milisegundos
-          stopTimer();
-        } else if (millisecondsElapsed >= exerciseTime * 1000) { // Cambiado a milisegundos
-          // Cambio de ejercicio
-          showExerciseChangeSnackbar(context, currentExercise);
-          currentExercise++;
-          if (currentExercise == 2) {
-            exerciseTime = exercise2Time;
-          } else if (currentExercise == 3) {
-            exerciseTime = exercise3Time;
-          } else if (currentExercise == 4) {
-            exerciseTime = exercise4Time;
+    timer = Timer.periodic(
+      const Duration(milliseconds: 10),
+      (Timer t) {
+        // Cambiado a milisegundos
+        setState(() {
+          millisecondsElapsed += 10; // Incrementado en 10 milisegundos
+          if (millisecondsElapsed >= totalTime * 1000) {
+            // Cambiado a milisegundos
+            stopTimer();
+          } else if (millisecondsElapsed >= exerciseTime * 1000) {
+            // Cambiado a milisegundos
+            // Cambio de ejercicio
+            showExerciseChangeSnackbar(context, currentExercise);
+            currentExercise++;
+            if (currentExercise == 2) {
+              exerciseTime = exercise2Time;
+            } else if (currentExercise == 3) {
+              exerciseTime = exercise3Time;
+            } else if (currentExercise == 4) {
+              exerciseTime = exercise4Time;
+            }
           }
-        }
-      });
-    });
+        });
+      },
+    );
   }
 
   void stopTimer() {
@@ -104,14 +110,6 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
 
   @override
   Widget build(BuildContext context) {
-    int currentExerciseTime = currentExercise == 1
-        ? exercise1Time
-        : currentExercise == 2
-            ? exercise2Time
-            : currentExercise == 3
-                ? exercise3Time
-                : exercise4Time;
-
     double exerciseProgress = millisecondsElapsed / (totalTime * 1000); // Cambiado a milisegundos
 
     return Scaffold(
@@ -177,15 +175,31 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
                   color: AppConstants.colors.primary,
                 ),
                 const SizedBox(height: 16),
-                ListView.builder(
-                  itemBuilder: (context, index) {
-                    return Text('$currentExercise');
-                  },
-                  itemCount: 0,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: EdgeInsets.zero,
+                SizedBox(
+                  height: 8,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (context, index) {
+                      return SizedBox(
+                        width: 2,
+                        child: Material(
+                          color: index > 72 ? const Color(0xFFE6E0EB) : AppConstants.colors.primary,
+                          borderRadius: index == 0
+                              ? const BorderRadius.horizontal(left: Radius.circular(32), right: Radius.zero)
+                              : index == 99
+                                  ? const BorderRadius.horizontal(right: Radius.circular(32), left: Radius.zero)
+                                  : null,
+                        ),
+                      );
+                    },
+                    itemCount: 100,
+                    clipBehavior: Clip.none,
+                    shrinkWrap: true,
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.zero,
+                  ),
                 ),
+                const SizedBox(height: 16),
               ],
             ),
           ),

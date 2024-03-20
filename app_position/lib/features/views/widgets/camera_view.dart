@@ -18,7 +18,6 @@ class _CameraViewState extends State<CameraView> {
 
   @override
   void initState() {
-    print('wa');
     camera = Provider.of<Camera>(context, listen: false);
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => camera.initialize());
@@ -27,7 +26,6 @@ class _CameraViewState extends State<CameraView> {
   @override
   void dispose() {
     if (mounted) {
-      print('wa2');
       camera.stopLiveFeed();
     }
     super.dispose();
@@ -40,6 +38,7 @@ class _CameraViewState extends State<CameraView> {
       children: [
         _liveFeedBody(),
         _backButton(),
+        _switchExercise(),
         _decoration(),
       ],
     );
@@ -58,6 +57,45 @@ class _CameraViewState extends State<CameraView> {
           ),
         ),
       );
+  Widget _switchExercise() {
+    final list = camera.listExercises;
+    return Positioned(
+      bottom: 32,
+      left: 0,
+      right: 0,
+      child: SizedBox(
+        height: 72,
+        child: ListView.separated(
+          padding: const EdgeInsets.all(16),
+          physics: const BouncingScrollPhysics(),
+          clipBehavior: Clip.none,
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (context, index) => GestureDetector(
+            onTap: () => camera.currentExercise = list[index],
+            child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                    color: camera.currentExercise == list[index]
+                        ? AppConstants.colors.primary
+                        : AppConstants.colors.disabled,
+                    borderRadius: BorderRadius.circular(32)),
+                child: Text(
+                  list[index].name,
+                  style: TextStyle(
+                    color: camera.currentExercise == list[index]
+                        ? AppConstants.colors.disabled
+                        : AppConstants.colors.primary,
+                  ),
+                )),
+          ),
+          separatorBuilder: (context, index) => const SizedBox(width: 8),
+          itemCount: list.length,
+        ),
+      ),
+    );
+  }
 
   Widget _liveFeedBody() {
     final camera = Provider.of<Camera>(context);

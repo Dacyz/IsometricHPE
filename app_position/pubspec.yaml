@@ -11,11 +11,13 @@ dependencies:
     sdk: flutter
   camera: ^0.10.5+8 # Camera package
   google_mlkit_pose_detection: ^0.10.0 # Pose detection
+  # google_mlkit_commons: ^0.6.1 # google commons
   path_provider: ^2.1.1 # File path
   wakelock: ^0.6.2 # WakeLock
   flutter_tts: ^3.8.5 # TTS (Text to Speech)
   provider: ^6.1.1 # Provider for state management
   flutter_svg: ^2.0.2
+  path: any
 
 dev_dependencies:
   flutter_test:
