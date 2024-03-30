@@ -25,9 +25,7 @@ class _CameraViewState extends State<CameraView> {
 
   @override
   void dispose() {
-    if (mounted) {
-      camera.stopLiveFeed();
-    }
+    if (mounted) camera.stopLiveFeed();
     super.dispose();
   }
 
@@ -72,20 +70,36 @@ class _CameraViewState extends State<CameraView> {
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) => GestureDetector(
             onTap: () => camera.currentExercise = list[index],
-            child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
+            child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                    color: camera.currentExercise == list[index]
-                        ? AppConstants.colors.primary
-                        : AppConstants.colors.disabled,
-                    borderRadius: BorderRadius.circular(32)),
+                  color: camera.currentExercise == list[index]
+                      ? !camera.isTimerRunning
+                          ? AppConstants.colors.primary
+                          : AppConstants.colors.primary
+                      : AppConstants.colors.disabled,
+                  gradient: camera.currentExercise == list[index] && camera.isTimerRunning
+                      ? LinearGradient(
+                          colors: [
+                            AppConstants.colors.primary,
+                            AppConstants.colors.disabled,
+                          ],
+                          tileMode: TileMode.decal,
+                          stops: [camera.exerciseProgress, camera.exerciseProgress],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        )
+                      : null,
+                  borderRadius: BorderRadius.circular(32),
+                ),
                 child: Text(
                   list[index].name,
                   style: TextStyle(
                     color: camera.currentExercise == list[index]
-                        ? AppConstants.colors.disabled
+                        ? !camera.isTimerRunning
+                            ? AppConstants.colors.disabled
+                            : Colors.black
                         : AppConstants.colors.primary,
                   ),
                 )),

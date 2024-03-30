@@ -1,8 +1,7 @@
+import 'dart:async';
 import 'dart:io';
-
+import 'package:app_position/features/data/exercise.dart';
 import 'package:app_position/features/models/exercise.dart';
-import 'package:app_position/features/models/tools.dart';
-import 'package:app_position/features/models/helper.dart';
 import 'package:app_position/features/views/widgets/pose_painter.dart';
 import 'package:wakelock/wakelock.dart';
 import 'package:camera/camera.dart';
@@ -10,200 +9,57 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
-final Exercise fullBridge = Exercise(
-  name: 'Full Bridge',
-  time: const Duration(seconds: 60),
-  toPaint: (canvas, size, pose, imageSize, rotation, cameraLensDirection) {
-    final leftPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
-      ..color = Colors.yellow;
-    final rightPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
-      ..color = Colors.blueAccent;
-
-    final tool = ExerciseTools(
-      canvas,
-      size: size,
-      pose: pose,
-      imageSize: imageSize,
-      rotation: rotation,
-      cameraLensDirection: cameraLensDirection,
-    );
-
-    //Draw arms
-    tool.paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftElbow, leftPaint);
-    tool.paintLine(PoseLandmarkType.leftElbow, PoseLandmarkType.leftWrist, leftPaint);
-    tool.paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightElbow, rightPaint);
-    tool.paintLine(PoseLandmarkType.rightElbow, PoseLandmarkType.rightWrist, rightPaint);
-
-    //Draw Body
-    tool.paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftHip, leftPaint);
-    tool.paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip, rightPaint);
-
-    final angle1 = tool.getAngle(PoseLandmarkType.leftElbow, PoseLandmarkType.leftShoulder, PoseLandmarkType.leftWrist);
-    final angle2 =
-        tool.getAngle(PoseLandmarkType.rightElbow, PoseLandmarkType.rightShoulder, PoseLandmarkType.rightWrist);
-
-    final validationAngle1 = (angle1 < 120 && angle1 > 30) || (angle1 > 240 && angle1 < 290);
-    final validationAngle2 = (angle2 > 30 && angle2 < 120) || (angle2 < 290 && angle2 > 240);
-
-    //Draw Angles
-    tool.paintAngle(PoseLandmarkType.leftElbow, angle1, validationAngle1 ? Colors.green : Colors.red);
-    tool.paintAngle(PoseLandmarkType.rightElbow, angle2, validationAngle2 ? Colors.green : Colors.red);
-    //Draw legs
-    tool.paintLine(PoseLandmarkType.leftHip, PoseLandmarkType.leftKnee, leftPaint);
-    tool.paintLine(PoseLandmarkType.leftKnee, PoseLandmarkType.leftAnkle, leftPaint);
-    tool.paintLine(PoseLandmarkType.rightHip, PoseLandmarkType.rightKnee, rightPaint);
-    tool.paintLine(PoseLandmarkType.rightKnee, PoseLandmarkType.rightAnkle, rightPaint);
-
-    tool.paintDescription([' \n${angle1.toStringAsFixed(2)}', ' \n${angle2.toStringAsFixed(2)}']);
-  },
-);
-
-final Exercise sideLeftBridge = Exercise(
-  name: 'Side Left Bridge',
-  time: const Duration(seconds: 60),
-  toPaint: (canvas, size, pose, imageSize, rotation, cameraLensDirection) {
-    final leftPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
-      ..color = Colors.yellow;
-    final rightPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
-      ..color = Colors.blueAccent;
-    double getAngle(PoseLandmarkType middle, PoseLandmarkType start, PoseLandmarkType end) {
-      final PoseLandmark joint1 = pose.landmarks[middle]!;
-      final middlePoint = poseOffset(
-        joint1,
-        size,
-        imageSize,
-        rotation,
-        cameraLensDirection,
-      );
-      final PoseLandmark joint2 = pose.landmarks[start]!;
-      final startPoint = poseOffset(
-        joint2,
-        size,
-        imageSize,
-        rotation,
-        cameraLensDirection,
-      );
-      final PoseLandmark joint3 = pose.landmarks[end]!;
-      final endPoint = poseOffset(
-        joint3,
-        size,
-        imageSize,
-        rotation,
-        cameraLensDirection,
-      );
-      return calcularAnguloEntreTresPuntos(startPoint, middlePoint, endPoint);
-    }
-
-    void paintAngle(PoseLandmarkType point, double angle, [Color color = Colors.green]) {
-      final PoseLandmark joint1 = pose.landmarks[point]!;
-      final middlePoint = poseOffset(
-        joint1,
-        size,
-        imageSize,
-        rotation,
-        cameraLensDirection,
-      );
-      TextSpan span = TextSpan(
-        style: TextStyle(color: color, fontWeight: FontWeight.w800),
-        text: '\n${angle.toStringAsFixed(2)}',
-      );
-      TextPainter tp = TextPainter(
-        text: span,
-        textAlign: TextAlign.left,
-        textDirection: TextDirection.ltr,
-      );
-      tp.layout();
-      tp.paint(
-        canvas,
-        middlePoint,
-      );
-      tp.paint(canvas, const Offset(16, 16));
-    }
-
-    void paintLine(PoseLandmarkType type1, PoseLandmarkType type2, Paint paintType) {
-      final PoseLandmark joint1 = pose.landmarks[type1]!;
-      final PoseLandmark joint2 = pose.landmarks[type2]!;
-      canvas.drawLine(
-        poseOffset(
-          joint1,
-          size,
-          imageSize,
-          rotation,
-          cameraLensDirection,
-        ),
-        poseOffset(
-          joint2,
-          size,
-          imageSize,
-          rotation,
-          cameraLensDirection,
-        ),
-        paintType,
-      );
-    }
-
-    //Draw arms
-    paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftElbow, leftPaint);
-    paintLine(PoseLandmarkType.leftElbow, PoseLandmarkType.leftWrist, leftPaint);
-    paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightElbow, rightPaint);
-    paintLine(PoseLandmarkType.rightElbow, PoseLandmarkType.rightWrist, rightPaint);
-
-    //Draw Body
-    paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftHip, leftPaint);
-    paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip, rightPaint);
-
-    final angle1 = getAngle(PoseLandmarkType.leftElbow, PoseLandmarkType.leftShoulder, PoseLandmarkType.leftWrist);
-    final angle2 = getAngle(PoseLandmarkType.rightElbow, PoseLandmarkType.rightShoulder, PoseLandmarkType.rightWrist);
-
-    final validationAngle1 = (angle1 < 120 && angle1 > 30) || (angle1 > 240 && angle1 < 290);
-    final validationAngle2 = (angle2 > 30 && angle2 < 120) || (angle2 < 290 && angle2 > 240);
-
-    paintAngle(PoseLandmarkType.leftElbow, angle1, validationAngle1 ? Colors.green : Colors.red);
-    paintAngle(PoseLandmarkType.rightElbow, angle2, validationAngle2 ? Colors.green : Colors.red);
-
-    TextPainter tp2 = TextPainter(
-      text: TextSpan(text: 'Ángulos:', children: [
-        TextSpan(
-          text: ' \n${angle1.toStringAsFixed(2)}',
-          style: TextStyle(color: validationAngle1 ? Colors.green : Colors.red, fontWeight: FontWeight.w800),
-        ),
-        TextSpan(
-          text: ' \n${angle2.toStringAsFixed(2)}',
-          style: TextStyle(color: validationAngle2 ? Colors.green : Colors.red, fontWeight: FontWeight.w800),
-        ),
-      ]),
-      textAlign: TextAlign.left,
-      textDirection: TextDirection.ltr,
-    );
-    tp2.layout();
-    tp2.paint(canvas, Offset(size.width * 0.2, size.height * 0.3));
-    //Draw legs
-    paintLine(PoseLandmarkType.leftHip, PoseLandmarkType.leftKnee, leftPaint);
-    paintLine(PoseLandmarkType.leftKnee, PoseLandmarkType.leftAnkle, leftPaint);
-    paintLine(PoseLandmarkType.rightHip, PoseLandmarkType.rightKnee, rightPaint);
-    paintLine(PoseLandmarkType.rightKnee, PoseLandmarkType.rightAnkle, rightPaint);
-  },
-);
-
 class Camera extends ChangeNotifier {
   var initialCameraLensDirection = CameraLensDirection.back;
   List<CameraDescription> cameras = [];
   final List<Exercise> listExercises = [
     fullBridge,
     sideLeftBridge,
+    sideRightBridge,
   ];
   late Exercise currentExercise = listExercises.first;
+  int get fullTime =>
+      listExercises.reduce((value, element) => element.copyWith(time: value.time + element.time)).time.inSeconds;
+  int get totalTime => fullTime * 1000;
+  String get time =>
+      '${(millisecondsElapsed ~/ 60000).toString().padLeft(2, '0')}:${((millisecondsElapsed ~/ 1000) % 60).toString().padLeft(2, '0')}.${((millisecondsElapsed % 1000) ~/ 10).toString().padLeft(2, '0')}';
   CameraController? controller;
   int cameraIndex = -1;
   bool changingCameraLens = false;
+
+  bool isTimerRunning = false;
+  int millisecondsElapsed = 0; // Cambiado a milisegundos
+  Timer? timer;
+
+  void startTimer() {
+    timer = Timer.periodic(
+      const Duration(milliseconds: 10),
+      (Timer t) {
+        millisecondsElapsed += 10;
+        if (millisecondsElapsed >= currentExercise.time.inMilliseconds) {
+          stopTimer();
+          
+        }
+        notifyListeners();
+      },
+    );
+  }
+
+  void restartTimer() {
+    isTimerRunning = true;
+    millisecondsElapsed = 0; // Reiniciar los milisegundos
+    currentExercise = listExercises.first;
+    startTimer();
+    notifyListeners();
+  }
+
+  void stopTimer() {
+    timer?.cancel();
+    isTimerRunning = false;
+    notifyListeners();
+  }
+
+  double get exerciseProgress => millisecondsElapsed / currentExercise.time.inMilliseconds;
 
   Future<void> initCameras() async {
     if (cameras.isEmpty) {

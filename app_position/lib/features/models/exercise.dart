@@ -13,4 +13,23 @@ class Exercise {
     required this.time,
     required this.toPaint,
   });
+
+  @override
+  String toString() {
+    return name;
+  }
+
+  Exercise copyWith({
+    String? name,
+    Duration? time,
+    Function(Canvas canvas, Size size, Pose poses, Size imageSize, InputImageRotation rotation,
+            CameraLensDirection cameraLensDirection)?
+        toPaint,
+  }) {
+    return Exercise(
+      name: name ?? this.name,
+      time: time ?? this.time,
+      toPaint: toPaint ?? this.toPaint,
+    );
+  }
 }
