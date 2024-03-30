@@ -1,25 +1,14 @@
 import 'dart:io';
 
-import 'package:app_position/features/views/widgets/helper.dart';
+import 'package:app_position/features/models/exercise.dart';
+import 'package:app_position/features/models/tools.dart';
+import 'package:app_position/features/models/helper.dart';
 import 'package:app_position/features/views/widgets/pose_painter.dart';
 import 'package:wakelock/wakelock.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
-
-class Exercise {
-  final String name;
-  final Duration time;
-  final Function(Canvas canvas, Size size, Pose poses, Size imageSize, InputImageRotation rotation,
-      CameraLensDirection cameraLensDirection) toPaint;
-
-  const Exercise({
-    required this.name,
-    required this.time,
-    required this.toPaint,
-  });
-}
 
 final Exercise fullBridge = Exercise(
   name: 'Full Bridge',
@@ -33,122 +22,43 @@ final Exercise fullBridge = Exercise(
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0
       ..color = Colors.blueAccent;
-    double getAngle(PoseLandmarkType middle, PoseLandmarkType start, PoseLandmarkType end) {
-      final PoseLandmark joint1 = pose.landmarks[middle]!;
-      final middlePoint = poseOffset(
-        joint1,
-        size,
-        imageSize,
-        rotation,
-        cameraLensDirection,
-      );
-      final PoseLandmark joint2 = pose.landmarks[start]!;
-      final startPoint = poseOffset(
-        joint2,
-        size,
-        imageSize,
-        rotation,
-        cameraLensDirection,
-      );
-      final PoseLandmark joint3 = pose.landmarks[end]!;
-      final endPoint = poseOffset(
-        joint3,
-        size,
-        imageSize,
-        rotation,
-        cameraLensDirection,
-      );
-      return calcularAnguloEntreTresPuntos(startPoint, middlePoint, endPoint);
-    }
 
-    void paintAngle(PoseLandmarkType point, double angle, [Color color = Colors.green]) {
-      final PoseLandmark joint1 = pose.landmarks[point]!;
-      final middlePoint = poseOffset(
-        joint1,
-        size,
-        imageSize,
-        rotation,
-        cameraLensDirection,
-      );
-      TextSpan span = TextSpan(
-        style: TextStyle(color: color, fontWeight: FontWeight.w800),
-        text: '\n${angle.toStringAsFixed(2)}',
-      );
-      TextPainter tp = TextPainter(
-        text: span,
-        textAlign: TextAlign.left,
-        textDirection: TextDirection.ltr,
-      );
-      tp.layout();
-      tp.paint(
-        canvas,
-        middlePoint,
-      );
-      tp.paint(canvas, const Offset(16, 16));
-    }
-
-    void paintLine(PoseLandmarkType type1, PoseLandmarkType type2, Paint paintType) {
-      final PoseLandmark joint1 = pose.landmarks[type1]!;
-      final PoseLandmark joint2 = pose.landmarks[type2]!;
-      canvas.drawLine(
-        poseOffset(
-          joint1,
-          size,
-          imageSize,
-          rotation,
-          cameraLensDirection,
-        ),
-        poseOffset(
-          joint2,
-          size,
-          imageSize,
-          rotation,
-          cameraLensDirection,
-        ),
-        paintType,
-      );
-    }
+    final tool = ExerciseTools(
+      canvas,
+      size: size,
+      pose: pose,
+      imageSize: imageSize,
+      rotation: rotation,
+      cameraLensDirection: cameraLensDirection,
+    );
 
     //Draw arms
-    paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftElbow, leftPaint);
-    paintLine(PoseLandmarkType.leftElbow, PoseLandmarkType.leftWrist, leftPaint);
-    paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightElbow, rightPaint);
-    paintLine(PoseLandmarkType.rightElbow, PoseLandmarkType.rightWrist, rightPaint);
+    tool.paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftElbow, leftPaint);
+    tool.paintLine(PoseLandmarkType.leftElbow, PoseLandmarkType.leftWrist, leftPaint);
+    tool.paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightElbow, rightPaint);
+    tool.paintLine(PoseLandmarkType.rightElbow, PoseLandmarkType.rightWrist, rightPaint);
 
     //Draw Body
-    paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftHip, leftPaint);
-    paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip, rightPaint);
+    tool.paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftHip, leftPaint);
+    tool.paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip, rightPaint);
 
-    final angle1 = getAngle(PoseLandmarkType.leftElbow, PoseLandmarkType.leftShoulder, PoseLandmarkType.leftWrist);
-    final angle2 = getAngle(PoseLandmarkType.rightElbow, PoseLandmarkType.rightShoulder, PoseLandmarkType.rightWrist);
+    final angle1 = tool.getAngle(PoseLandmarkType.leftElbow, PoseLandmarkType.leftShoulder, PoseLandmarkType.leftWrist);
+    final angle2 =
+        tool.getAngle(PoseLandmarkType.rightElbow, PoseLandmarkType.rightShoulder, PoseLandmarkType.rightWrist);
 
     final validationAngle1 = (angle1 < 120 && angle1 > 30) || (angle1 > 240 && angle1 < 290);
     final validationAngle2 = (angle2 > 30 && angle2 < 120) || (angle2 < 290 && angle2 > 240);
 
-    paintAngle(PoseLandmarkType.leftElbow, angle1, validationAngle1 ? Colors.green : Colors.red);
-    paintAngle(PoseLandmarkType.rightElbow, angle2, validationAngle2 ? Colors.green : Colors.red);
-
-    TextPainter tp2 = TextPainter(
-      text: TextSpan(text: 'Ángulos:', children: [
-        TextSpan(
-          text: ' \n${angle1.toStringAsFixed(2)}',
-          style: TextStyle(color: validationAngle1 ? Colors.green : Colors.red, fontWeight: FontWeight.w800),
-        ),
-        TextSpan(
-          text: ' \n${angle2.toStringAsFixed(2)}',
-          style: TextStyle(color: validationAngle2 ? Colors.green : Colors.red, fontWeight: FontWeight.w800),
-        ),
-      ]),
-      textAlign: TextAlign.left,
-      textDirection: TextDirection.ltr,
-    );
-    tp2.layout();
-    tp2.paint(canvas, Offset(size.width * 0.2, size.height * 0.3));
+    //Draw Angles
+    tool.paintAngle(PoseLandmarkType.leftElbow, angle1, validationAngle1 ? Colors.green : Colors.red);
+    tool.paintAngle(PoseLandmarkType.rightElbow, angle2, validationAngle2 ? Colors.green : Colors.red);
     //Draw legs
-    paintLine(PoseLandmarkType.leftHip, PoseLandmarkType.leftKnee, leftPaint);
-    paintLine(PoseLandmarkType.leftKnee, PoseLandmarkType.leftAnkle, leftPaint);
-    paintLine(PoseLandmarkType.rightHip, PoseLandmarkType.rightKnee, rightPaint);
-    paintLine(PoseLandmarkType.rightKnee, PoseLandmarkType.rightAnkle, rightPaint);
+    tool.paintLine(PoseLandmarkType.leftHip, PoseLandmarkType.leftKnee, leftPaint);
+    tool.paintLine(PoseLandmarkType.leftKnee, PoseLandmarkType.leftAnkle, leftPaint);
+    tool.paintLine(PoseLandmarkType.rightHip, PoseLandmarkType.rightKnee, rightPaint);
+    tool.paintLine(PoseLandmarkType.rightKnee, PoseLandmarkType.rightAnkle, rightPaint);
+
+    tool.paintDescription([' \n${angle1.toStringAsFixed(2)}', ' \n${angle2.toStringAsFixed(2)}']);
   },
 );
 

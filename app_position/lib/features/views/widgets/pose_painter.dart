@@ -1,4 +1,4 @@
-import 'package:app_position/features/providers/camera.dart';
+import 'package:app_position/features/models/exercise.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';

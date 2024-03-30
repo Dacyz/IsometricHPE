@@ -175,31 +175,6 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
                   color: AppConstants.colors.primary,
                 ),
                 const SizedBox(height: 16),
-                SizedBox(
-                  height: 8,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (context, index) {
-                      return SizedBox(
-                        width: 2,
-                        child: Material(
-                          color: index > 72 ? const Color(0xFFE6E0EB) : AppConstants.colors.primary,
-                          borderRadius: index == 0
-                              ? const BorderRadius.horizontal(left: Radius.circular(32), right: Radius.zero)
-                              : index == 99
-                                  ? const BorderRadius.horizontal(right: Radius.circular(32), left: Radius.zero)
-                                  : null,
-                        ),
-                      );
-                    },
-                    itemCount: 100,
-                    clipBehavior: Clip.none,
-                    shrinkWrap: true,
-                    physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.zero,
-                  ),
-                ),
-                const SizedBox(height: 16),
               ],
             ),
           ),
