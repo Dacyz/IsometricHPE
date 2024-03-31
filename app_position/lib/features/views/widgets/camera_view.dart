@@ -78,7 +78,9 @@ class _CameraViewState extends State<CameraView> {
                       ? !camera.isTimerRunning
                           ? AppConstants.colors.primary
                           : AppConstants.colors.primary
-                      : AppConstants.colors.disabled,
+                      : list[index].isDone
+                          ? AppConstants.colors.primary
+                          : AppConstants.colors.disabled,
                   gradient: camera.currentExercise == list[index] && camera.isTimerRunning
                       ? LinearGradient(
                           colors: [
@@ -100,7 +102,9 @@ class _CameraViewState extends State<CameraView> {
                         ? !camera.isTimerRunning
                             ? AppConstants.colors.disabled
                             : Colors.black
-                        : AppConstants.colors.primary,
+                        : list[index].isDone
+                            ? AppConstants.colors.disabled
+                            : AppConstants.colors.primary,
                   ),
                 )),
           ),

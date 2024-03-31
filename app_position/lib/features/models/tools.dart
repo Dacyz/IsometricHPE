@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:app_position/features/models/helper.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +48,28 @@ class ExerciseTools {
       cameraLensDirection,
     );
     return calcularAnguloEntreTresPuntos(startPoint, middlePoint, endPoint);
+  }
+
+  double getDistance(PoseLandmarkType start, PoseLandmarkType end) {
+    final PoseLandmark joint2 = pose.landmarks[start]!;
+    final point1 = poseOffset(
+      joint2,
+      size,
+      imageSize,
+      rotation,
+      cameraLensDirection,
+    );
+    final PoseLandmark joint3 = pose.landmarks[end]!;
+    final point2 = poseOffset(
+      joint3,
+      size,
+      imageSize,
+      rotation,
+      cameraLensDirection,
+    );
+    final double dx = point1.dx - point2.dx;
+    final double dy = point1.dy - point2.dy;
+    return sqrt(dx * dx + dy * dy);
   }
 
   void paintAngle(PoseLandmarkType point, double angle, [Color color = Colors.green]) {

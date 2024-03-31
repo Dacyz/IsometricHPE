@@ -30,7 +30,7 @@ class Camera extends ChangeNotifier {
   bool changingCameraLens = false;
 
   bool isTimerRunning = false;
-  int millisecondsElapsed = 0; // Cambiado a milisegundos
+  int millisecondsElapsed = 0;
   Timer? timer;
 
   void startTimer([Exercise? currentExercise]) {
@@ -45,6 +45,7 @@ class Camera extends ChangeNotifier {
           if (id != -1 && id < listExercises.length - 1) {
             isTimerRunning = true;
             millisecondsElapsed = 0;
+            this.currentExercise.isDone = true;
             this.currentExercise = listExercises[id + 1];
             startTimer(this.currentExercise);
           }
@@ -55,6 +56,9 @@ class Camera extends ChangeNotifier {
   }
 
   void restartTimer() {
+    listExercises.forEach((element) {
+      element.isDone = false;
+    });
     isTimerRunning = true;
     millisecondsElapsed = 0;
     currentExercise = listExercises.first;
@@ -69,6 +73,7 @@ class Camera extends ChangeNotifier {
   }
 
   double get exerciseProgress => millisecondsElapsed / currentExercise.time.inMilliseconds;
+  // double get fullProgress => millisecondsElapsed / totalTime;
 
   Future<void> initCameras() async {
     if (cameras.isEmpty) {

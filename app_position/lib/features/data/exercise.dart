@@ -57,7 +57,7 @@ final Exercise fullBridge = Exercise(
 
 final Exercise sideLeftBridge = Exercise(
   name: 'Side Left Bridge',
-  time: const Duration(seconds: 60),
+  time: const Duration(seconds: 30),
   toPaint: (canvas, size, pose, imageSize, rotation, cameraLensDirection) {
     final leftPaint = Paint()
       ..style = PaintingStyle.stroke
@@ -86,14 +86,19 @@ final Exercise sideLeftBridge = Exercise(
     tool.paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftHip, leftPaint);
     tool.paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip, rightPaint);
 
-    final angle1 = tool.getAngle(PoseLandmarkType.leftElbow, PoseLandmarkType.leftShoulder, PoseLandmarkType.leftWrist);
-    final angle2 = tool.getAngle(PoseLandmarkType.rightElbow, PoseLandmarkType.rightShoulder, PoseLandmarkType.rightWrist);
+    final angle0 = tool.getAngle(PoseLandmarkType.leftElbow, PoseLandmarkType.leftShoulder, PoseLandmarkType.leftWrist);
+    final angle1 = tool.getAngle(PoseLandmarkType.leftHip, PoseLandmarkType.leftShoulder, PoseLandmarkType.leftKnee);
+    final angle2 = tool.getAngle(PoseLandmarkType.rightHip, PoseLandmarkType.rightShoulder, PoseLandmarkType.rightKnee);
+    final distance1 = tool.getDistance(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftElbow);
+    final distance2 = tool.getDistance(PoseLandmarkType.leftElbow, PoseLandmarkType.leftWrist);
 
-    final validationAngle1 = (angle1 < 120 && angle1 > 30) || (angle1 > 240 && angle1 < 290);
-    final validationAngle2 = (angle2 > 30 && angle2 < 120) || (angle2 < 290 && angle2 > 240);
+    final validationAngle1 = angle0 > 300 || angle0 < 60;
+    final validationAngle2 = angle1 > 320 || angle1 < 40;
+    final validationAngle3 = angle2 > 320 || angle2 < 40;
 
-    tool.paintAngle(PoseLandmarkType.leftElbow, angle1, validationAngle1 ? Colors.green : Colors.red);
-    tool.paintAngle(PoseLandmarkType.rightElbow, angle2, validationAngle2 ? Colors.green : Colors.red);
+    tool.paintAngle(PoseLandmarkType.leftElbow, angle0, validationAngle1 ? Colors.green : Colors.red);
+    tool.paintAngle(PoseLandmarkType.leftHip, angle1, validationAngle2 ? Colors.green : Colors.red);
+    tool.paintAngle(PoseLandmarkType.rightHip, angle2, validationAngle3 ? Colors.green : Colors.red);
 
     //Draw legs
     tool.paintLine(PoseLandmarkType.leftHip, PoseLandmarkType.leftKnee, leftPaint);
@@ -101,13 +106,19 @@ final Exercise sideLeftBridge = Exercise(
     tool.paintLine(PoseLandmarkType.rightHip, PoseLandmarkType.rightKnee, rightPaint);
     tool.paintLine(PoseLandmarkType.rightKnee, PoseLandmarkType.rightAnkle, rightPaint);
 
-    tool.paintDescription([' \n${angle1.toStringAsFixed(2)}', ' \n${angle2.toStringAsFixed(2)}']);
+    tool.paintDescription([
+      ' \n${angle0.toStringAsFixed(2)}',
+      ' \n${angle1.toStringAsFixed(2)}',
+      ' \n${angle2.toStringAsFixed(2)}',
+      ' \nDistance1: ${distance1.toStringAsFixed(2)}',
+      ' \nDistance2: ${distance2.toStringAsFixed(2)}',
+    ]);
   },
 );
 
 final Exercise sideRightBridge = Exercise(
   name: 'Side Right Bridge',
-  time: const Duration(seconds: 60),
+  time: const Duration(seconds: 30),
   toPaint: (canvas, size, pose, imageSize, rotation, cameraLensDirection) {
     final leftPaint = Paint()
       ..style = PaintingStyle.stroke
@@ -137,7 +148,8 @@ final Exercise sideRightBridge = Exercise(
     tool.paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip, rightPaint);
 
     final angle1 = tool.getAngle(PoseLandmarkType.leftElbow, PoseLandmarkType.leftShoulder, PoseLandmarkType.leftWrist);
-    final angle2 = tool.getAngle(PoseLandmarkType.rightElbow, PoseLandmarkType.rightShoulder, PoseLandmarkType.rightWrist);
+    final angle2 =
+        tool.getAngle(PoseLandmarkType.rightElbow, PoseLandmarkType.rightShoulder, PoseLandmarkType.rightWrist);
 
     final validationAngle1 = (angle1 < 120 && angle1 > 30) || (angle1 > 240 && angle1 < 290);
     final validationAngle2 = (angle2 > 30 && angle2 < 120) || (angle2 < 290 && angle2 > 240);
@@ -156,8 +168,8 @@ final Exercise sideRightBridge = Exercise(
 );
 
 final Exercise dBridge = Exercise(
-  name: 'Side Right Bridge',
-  time: const Duration(seconds: 60),
+  name: 'Proob 1.0',
+  time: const Duration(seconds: 10),
   toPaint: (canvas, size, pose, imageSize, rotation, cameraLensDirection) {
     final leftPaint = Paint()
       ..style = PaintingStyle.stroke
@@ -187,7 +199,8 @@ final Exercise dBridge = Exercise(
     tool.paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip, rightPaint);
 
     final angle1 = tool.getAngle(PoseLandmarkType.leftElbow, PoseLandmarkType.leftShoulder, PoseLandmarkType.leftWrist);
-    final angle2 = tool.getAngle(PoseLandmarkType.rightElbow, PoseLandmarkType.rightShoulder, PoseLandmarkType.rightWrist);
+    final angle2 =
+        tool.getAngle(PoseLandmarkType.rightElbow, PoseLandmarkType.rightShoulder, PoseLandmarkType.rightWrist);
 
     final validationAngle1 = (angle1 < 120 && angle1 > 30) || (angle1 > 240 && angle1 < 290);
     final validationAngle2 = (angle2 > 30 && angle2 < 120) || (angle2 < 290 && angle2 > 240);
@@ -206,8 +219,9 @@ final Exercise dBridge = Exercise(
 );
 
 final Exercise cBridge = Exercise(
-  name: 'Side Right Bridge',
-  time: const Duration(seconds: 60),
+  name: 'Proob 2.0',
+  isDone: true,
+  time: const Duration(seconds: 10),
   toPaint: (canvas, size, pose, imageSize, rotation, cameraLensDirection) {
     final leftPaint = Paint()
       ..style = PaintingStyle.stroke
@@ -237,7 +251,8 @@ final Exercise cBridge = Exercise(
     tool.paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip, rightPaint);
 
     final angle1 = tool.getAngle(PoseLandmarkType.leftElbow, PoseLandmarkType.leftShoulder, PoseLandmarkType.leftWrist);
-    final angle2 = tool.getAngle(PoseLandmarkType.rightElbow, PoseLandmarkType.rightShoulder, PoseLandmarkType.rightWrist);
+    final angle2 =
+        tool.getAngle(PoseLandmarkType.rightElbow, PoseLandmarkType.rightShoulder, PoseLandmarkType.rightWrist);
 
     final validationAngle1 = (angle1 < 120 && angle1 > 30) || (angle1 > 240 && angle1 < 290);
     final validationAngle2 = (angle2 > 30 && angle2 < 120) || (angle2 < 290 && angle2 > 240);
