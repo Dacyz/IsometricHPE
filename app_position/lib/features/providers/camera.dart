@@ -16,6 +16,8 @@ class Camera extends ChangeNotifier {
     fullBridge,
     sideLeftBridge,
     sideRightBridge,
+    dBridge,
+    cBridge,
   ];
   late Exercise currentExercise = listExercises.first;
   int get fullTime =>
@@ -31,14 +33,21 @@ class Camera extends ChangeNotifier {
   int millisecondsElapsed = 0; // Cambiado a milisegundos
   Timer? timer;
 
-  void startTimer() {
+  void startTimer([Exercise? currentExercise]) {
+    final exercise = currentExercise ?? this.currentExercise;
     timer = Timer.periodic(
       const Duration(milliseconds: 10),
       (Timer t) {
         millisecondsElapsed += 10;
-        if (millisecondsElapsed >= currentExercise.time.inMilliseconds) {
+        if (millisecondsElapsed >= exercise.time.inMilliseconds) {
           stopTimer();
-          
+          final id = listExercises.indexOf(exercise);
+          if (id != -1 && id < listExercises.length - 1) {
+            isTimerRunning = true;
+            millisecondsElapsed = 0;
+            this.currentExercise = listExercises[id + 1];
+            startTimer(this.currentExercise);
+          }
         }
         notifyListeners();
       },
@@ -47,7 +56,7 @@ class Camera extends ChangeNotifier {
 
   void restartTimer() {
     isTimerRunning = true;
-    millisecondsElapsed = 0; // Reiniciar los milisegundos
+    millisecondsElapsed = 0;
     currentExercise = listExercises.first;
     startTimer();
     notifyListeners();
