@@ -62,14 +62,19 @@ class _CameraViewState extends State<CameraView> {
       left: 0,
       right: 0,
       child: SizedBox(
-        height: 72,
+        height: 86,
         child: ListView.separated(
           padding: const EdgeInsets.all(16),
           physics: const BouncingScrollPhysics(),
           clipBehavior: Clip.none,
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) => GestureDetector(
-            onTap: () => camera.currentExercise = list[index],
+            onTap: camera.isTimerRunning ? null : () => camera.currentExercise = list[index],
+            onLongPress: camera.isTimerRunning
+                ? null
+                : () {
+                    print(camera.currentExercise == list[index]);
+                  },
             child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 alignment: Alignment.center,
@@ -95,17 +100,38 @@ class _CameraViewState extends State<CameraView> {
                       : null,
                   borderRadius: BorderRadius.circular(32),
                 ),
-                child: Text(
-                  list[index].name,
-                  style: TextStyle(
-                    color: camera.currentExercise == list[index]
-                        ? !camera.isTimerRunning
-                            ? AppConstants.colors.disabled
-                            : Colors.black
-                        : list[index].isDone
-                            ? AppConstants.colors.disabled
-                            : AppConstants.colors.primary,
-                  ),
+                child: RichText(
+                  text: TextSpan(
+                      text: list[index].name,
+                      children: [
+                        TextSpan(
+                          text: camera.isTimerRunning && camera.currentExercise == list[index]
+                              ? '\n${list[index].timer}'
+                              : '\n${list[index].duration}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 12,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' ${list[index].isDone ? '✓' : ''}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: camera.currentExercise == list[index]
+                            ? !camera.isTimerRunning
+                                ? AppConstants.colors.disabled
+                                : Colors.black
+                            : list[index].isDone
+                                ? AppConstants.colors.disabled
+                                : AppConstants.colors.primary,
+                      )),
+                  textAlign: TextAlign.center,
                 )),
           ),
           separatorBuilder: (context, index) => const SizedBox(width: 8),

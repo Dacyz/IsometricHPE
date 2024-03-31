@@ -14,7 +14,6 @@ class PoseDetectorView extends StatefulWidget {
 }
 
 class _PoseDetectorViewState extends State<PoseDetectorView> {
-
   @override
   Widget build(BuildContext context) {
     final camera = Provider.of<Camera>(context);
@@ -43,40 +42,35 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
                     const SizedBox(width: 8),
                     FloatingActionButton(
                       elevation: 0,
-                      shape: CircleBorder(side: BorderSide(color: AppConstants.colors.primary)),
+                      shape: CircleBorder(
+                          side: BorderSide(color: camera.isTimerRunning ? Colors.grey : AppConstants.colors.primary)),
                       onPressed: camera.isTimerRunning
-                          ? () {
+                          ? null
+                          : () {
                               final camera = Provider.of<Camera>(context, listen: false);
                               camera.switchLiveCamera();
-                            }
-                          : null,
+                            },
                       highlightElevation: 0,
                       backgroundColor: Colors.white,
                       child: Icon(
                         Icons.flip_camera_android_outlined,
-                        color: camera.isTimerRunning ? AppConstants.colors.primary : Colors.grey,
+                        color: camera.isTimerRunning ? Colors.grey : AppConstants.colors.primary,
                         size: 25,
                       ),
                     )
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 Text(
-                  '${camera.currentExercise.name} ${camera.fullTime.toString()} ${camera.exerciseProgress.toStringAsFixed(3)}',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  camera.time, // Actualizado para mostrar milisegundos
+                  camera.time,
                   style: const TextStyle(
                     fontSize: 72,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
+                const SizedBox(height: 16),
                 LinearProgressIndicator(
-                  value: camera.exerciseProgress,
+                  value: camera.fullProgress,
                   minHeight: 8,
                   borderRadius: BorderRadius.circular(8),
                   color: AppConstants.colors.primary,

@@ -24,7 +24,7 @@ class Camera extends ChangeNotifier {
       listExercises.reduce((value, element) => element.copyWith(time: value.time + element.time)).time.inSeconds;
   int get totalTime => fullTime * 1000;
   String get time =>
-      '${(millisecondsElapsed ~/ 60000).toString().padLeft(2, '0')}:${((millisecondsElapsed ~/ 1000) % 60).toString().padLeft(2, '0')}.${((millisecondsElapsed % 1000) ~/ 10).toString().padLeft(2, '0')}';
+      '${(fullMillisecondsElapsed ~/ 60000).toString().padLeft(2, '0')}:${((fullMillisecondsElapsed ~/ 1000) % 60).toString().padLeft(2, '0')}.${((fullMillisecondsElapsed % 1000) ~/ 10).toString().padLeft(2, '0')}';
   CameraController? controller;
   int cameraIndex = -1;
   bool changingCameraLens = false;
@@ -35,17 +35,18 @@ class Camera extends ChangeNotifier {
 
   void startTimer([Exercise? currentExercise]) {
     final exercise = currentExercise ?? this.currentExercise;
+    isTimerRunning = true;
     timer = Timer.periodic(
       const Duration(milliseconds: 10),
       (Timer t) {
         millisecondsElapsed += 10;
+        exercise.millisecondsElapsed = millisecondsElapsed;
         if (millisecondsElapsed >= exercise.time.inMilliseconds) {
           stopTimer();
           final id = listExercises.indexOf(exercise);
+          millisecondsElapsed = 0;
+          exercise.isDone = true;
           if (id != -1 && id < listExercises.length - 1) {
-            isTimerRunning = true;
-            millisecondsElapsed = 0;
-            this.currentExercise.isDone = true;
             this.currentExercise = listExercises[id + 1];
             startTimer(this.currentExercise);
           }
@@ -58,8 +59,8 @@ class Camera extends ChangeNotifier {
   void restartTimer() {
     listExercises.forEach((element) {
       element.isDone = false;
+      element.millisecondsElapsed = 0;
     });
-    isTimerRunning = true;
     millisecondsElapsed = 0;
     currentExercise = listExercises.first;
     startTimer();
@@ -73,7 +74,11 @@ class Camera extends ChangeNotifier {
   }
 
   double get exerciseProgress => millisecondsElapsed / currentExercise.time.inMilliseconds;
-  // double get fullProgress => millisecondsElapsed / totalTime;
+  int get fullMillisecondsElapsed => listExercises
+      .reduce((value, element) =>
+          element.copyWith(millisecondsElapsed: value.millisecondsElapsed + element.millisecondsElapsed))
+      .millisecondsElapsed;
+  double get fullProgress => fullMillisecondsElapsed / totalTime;
 
   Future<void> initCameras() async {
     if (cameras.isEmpty) {

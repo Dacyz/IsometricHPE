@@ -21,11 +21,14 @@ class Exercise extends ExerciseModel {
     required super.time,
     required super.toPaint,
     this.isDone = false,
+    this.millisecondsElapsed = 0,
   });
 
   bool isDone;
-  int millisecondsElapsed = 0;
-
+  int millisecondsElapsed;
+  String get duration => '${(time.inMilliseconds ~/ 60000).toString().padLeft(2, '0')}:${((time.inMilliseconds ~/ 1000) % 60).toString().padLeft(2, '0')}';
+  String get timer =>
+      '${(millisecondsElapsed ~/ 60000).toString().padLeft(2, '0')}:${((millisecondsElapsed ~/ 1000) % 60).toString().padLeft(2, '0')}';
   @override
   String toString() {
     return name;
@@ -34,6 +37,8 @@ class Exercise extends ExerciseModel {
   Exercise copyWith({
     String? name,
     Duration? time,
+    bool? isDone,
+    int? millisecondsElapsed,
     Function(Canvas canvas, Size size, Pose poses, Size imageSize, InputImageRotation rotation,
             CameraLensDirection cameraLensDirection)?
         toPaint,
@@ -41,6 +46,8 @@ class Exercise extends ExerciseModel {
     return Exercise(
       name: name ?? this.name,
       time: time ?? this.time,
+      isDone: isDone ?? this.isDone,
+      millisecondsElapsed: millisecondsElapsed ?? this.millisecondsElapsed,
       toPaint: toPaint ?? this.toPaint,
     );
   }

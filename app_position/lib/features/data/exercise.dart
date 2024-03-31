@@ -220,7 +220,6 @@ final Exercise dBridge = Exercise(
 
 final Exercise cBridge = Exercise(
   name: 'Proob 2.0',
-  isDone: true,
   time: const Duration(seconds: 10),
   toPaint: (canvas, size, pose, imageSize, rotation, cameraLensDirection) {
     final leftPaint = Paint()
