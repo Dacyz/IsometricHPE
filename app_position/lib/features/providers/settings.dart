@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
-class Settings extends ChangeNotifier {
-  final _flutterTts = FlutterTts();
-  Settings() {
-    _initTTS();
-  }
+mixin Settings on ChangeNotifier {
+  final flutterTts = FlutterTts();
 
   List<Map> get voices => availableVoices
-      .where((element) => localeVoices.isEmpty
-          ? false
-          : element['locale'] == localeVoices[_indexVoice])
+      .where((element) => localeVoices.isEmpty ? false : element['locale'] == localeVoices[_indexVoice])
       .toList();
   final List<String> localeVoices = [];
   final List<Map> availableVoices = [];
@@ -39,30 +34,10 @@ class Settings extends ChangeNotifier {
     _speak();
   }
 
-  void _initTTS() async {
-    final voiceList = await _flutterTts.getVoices;
-    try {
-      final voicesList = List<Map>.from(voiceList);
-      for (var element in voicesList) {
-        final e = element['locale'] as String;
-        // if (e.contains('es') || e.contains('en')) {
-        if (e.contains('es')) {
-          availableVoices.add(element);
-          if (!localeVoices.contains(e)) {
-            localeVoices.add(e);
-          }
-        }
-      }
-      notifyListeners();
-    } catch (ex) {
-      print(ex);
-    }
-  }
-
   void _setVoice() {
     if (currentVoice == null) return;
     final locale = currentVoice!['locale'] as String;
-    _flutterTts.setVoice({
+    flutterTts.setVoice({
       'name': currentVoice!['name'],
       'locale': locale,
     });
@@ -75,10 +50,17 @@ class Settings extends ChangeNotifier {
 
   void _speak() {
     if (textToSpetch.text.trim().isEmpty) {
-      _flutterTts.speak('No puedo reproducir un texto vació');
+      flutterTts.speak('No puedo reproducir un texto vació');
       return;
     }
-    _flutterTts.speak(textToSpetch.text);
+    flutterTts.speak(textToSpetch.text);
   }
 
+  void talk([String? text]) {
+    try {
+      flutterTts.speak(text ?? textToSpetch.text);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
 }

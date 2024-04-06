@@ -35,7 +35,7 @@ class _CameraViewState extends State<CameraView> {
       fit: StackFit.expand,
       children: [
         _liveFeedBody(),
-        _backButton(),
+        if (!camera.isTimerRunning) _backButton(),
         _switchExercise(),
         _decoration(),
       ],

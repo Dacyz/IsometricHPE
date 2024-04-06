@@ -1,6 +1,5 @@
 import 'package:app_position/core/const.dart';
 import 'package:app_position/features/providers/camera.dart';
-import 'package:app_position/features/providers/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +19,6 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => Settings()),
         ChangeNotifierProvider(create: (_) => Camera()),
       ],
       builder: (_, __) {

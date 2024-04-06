@@ -1,5 +1,5 @@
+import 'package:app_position/features/providers/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:app_position/features/providers/settings.dart';
 import 'package:provider/provider.dart';
 
 class SettingsView extends StatelessWidget {
@@ -8,7 +8,7 @@ class SettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final setting = Provider.of<Settings>(context);
+    final setting = Provider.of<Camera>(context);
     final localeVoices = setting.localeVoices;
     final indexVoice = setting.indexVoice;
     final voices = setting.voices;

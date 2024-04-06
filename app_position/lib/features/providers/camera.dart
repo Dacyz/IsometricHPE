@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:app_position/features/data/exercise.dart';
 import 'package:app_position/features/models/exercise.dart';
+import 'package:app_position/features/providers/settings.dart';
 import 'package:app_position/features/views/widgets/pose_painter.dart';
 import 'package:wakelock/wakelock.dart';
 import 'package:camera/camera.dart';
@@ -9,7 +10,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
-class Camera extends ChangeNotifier {
+class Camera extends ChangeNotifier with Settings {
+  Camera() {
+    _initTTS();
+  }
+
+  void _initTTS() async {
+    final voiceList = await flutterTts.getVoices;
+    try {
+      final voicesList = List<Map>.from(voiceList);
+      for (var element in voicesList) {
+        final e = element['locale'] as String;
+        // if (e.contains('es') || e.contains('en')) {
+        if (e.contains('es')) {
+          availableVoices.add(element);
+          if (!localeVoices.contains(e)) {
+            localeVoices.add(e);
+          }
+        }
+      }
+      notifyListeners();
+    } catch (ex) {
+      debugPrint(ex.toString());
+    }
+  }
+
   var initialCameraLensDirection = CameraLensDirection.back;
   List<CameraDescription> cameras = [];
   final List<Exercise> listExercises = [
@@ -33,14 +58,20 @@ class Camera extends ChangeNotifier {
   int millisecondsElapsed = 0;
   Timer? timer;
 
-  void startTimer([Exercise? currentExercise]) {
+  void startTimer(BuildContext context, [Exercise? currentExercise]) {
     final exercise = currentExercise ?? this.currentExercise;
     isTimerRunning = true;
+    talk(exercise.name);
+    bool isBecomingOtherExercise = false;
     timer = Timer.periodic(
       const Duration(milliseconds: 10),
       (Timer t) {
         millisecondsElapsed += 10;
         exercise.millisecondsElapsed = millisecondsElapsed;
+        if (millisecondsElapsed >= exercise.time.inMilliseconds - 4000 && !isBecomingOtherExercise) {
+          isBecomingOtherExercise = true;
+          talk('3 segundos');
+        }
         if (millisecondsElapsed >= exercise.time.inMilliseconds) {
           stopTimer();
           final id = listExercises.indexOf(exercise);
@@ -48,7 +79,7 @@ class Camera extends ChangeNotifier {
           exercise.isDone = true;
           if (id != -1 && id < listExercises.length - 1) {
             this.currentExercise = listExercises[id + 1];
-            startTimer(this.currentExercise);
+            startTimer(context, this.currentExercise);
           }
         }
         notifyListeners();
@@ -56,14 +87,14 @@ class Camera extends ChangeNotifier {
     );
   }
 
-  void restartTimer() {
+  void restartTimer(BuildContext context) {
     listExercises.forEach((element) {
       element.isDone = false;
       element.millisecondsElapsed = 0;
     });
     millisecondsElapsed = 0;
     currentExercise = listExercises.first;
-    startTimer();
+    startTimer(context);
     notifyListeners();
   }
 

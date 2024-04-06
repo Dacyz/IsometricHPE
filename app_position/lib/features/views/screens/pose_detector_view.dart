@@ -35,7 +35,7 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
                         onPressed: camera.isTimerRunning
                             ? null
                             : () {
-                                camera.restartTimer();
+                                camera.restartTimer(context);
                               },
                       ),
                     ),
