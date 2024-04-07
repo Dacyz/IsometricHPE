@@ -13,6 +13,7 @@ import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 class Camera extends ChangeNotifier with Settings {
   Camera() {
     _initTTS();
+    initExercises();
   }
 
   void _initTTS() async {
@@ -35,9 +36,20 @@ class Camera extends ChangeNotifier with Settings {
     }
   }
 
+  void initExercises() {
+    List<Exercise> exercisesList = [];
+    for (var i = 0; i < listExercises.length; i++) {
+      exercisesList.add(listExercises[i]);
+      if (i != listExercises.length - 1) {
+        exercisesList.insert(exercisesList.length, Exercise.rest());
+      }
+    }
+    listExercises = exercisesList;
+  }
+
   var initialCameraLensDirection = CameraLensDirection.back;
   List<CameraDescription> cameras = [];
-  final List<Exercise> listExercises = [
+  List<Exercise> listExercises = [
     fullBridge,
     sideLeftBridge,
     sideRightBridge,
@@ -62,15 +74,20 @@ class Camera extends ChangeNotifier with Settings {
     final exercise = currentExercise ?? this.currentExercise;
     isTimerRunning = true;
     talk(exercise.name);
+
     bool isBecomingOtherExercise = false;
     timer = Timer.periodic(
       const Duration(milliseconds: 10),
       (Timer t) {
         millisecondsElapsed += 10;
         exercise.millisecondsElapsed = millisecondsElapsed;
-        if (millisecondsElapsed >= exercise.time.inMilliseconds - 4000 && !isBecomingOtherExercise) {
+        if (millisecondsElapsed >= exercise.time.inMilliseconds - 3200 && !isBecomingOtherExercise) {
           isBecomingOtherExercise = true;
-          talk('3 segundos');
+          if (exercise.type == ExerciseType.rest) {
+            talk('Preparate');
+          } else {
+            talk('3 segundos');
+          }
         }
         if (millisecondsElapsed >= exercise.time.inMilliseconds) {
           stopTimer();

@@ -1,6 +1,8 @@
 import 'package:app_position/core/const.dart';
+import 'package:app_position/features/models/exercise.dart';
 import 'package:app_position/features/providers/camera.dart';
 import 'package:camera/camera.dart';
+import 'package:duration_picker/duration_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -70,73 +72,85 @@ class _CameraViewState extends State<CameraView> {
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) => GestureDetector(
             onTap: camera.isTimerRunning ? null : () => camera.currentExercise = list[index],
-            onLongPress: camera.isTimerRunning
-                ? null
-                : () {
-                    print(camera.currentExercise == list[index]);
-                  },
-            child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: camera.currentExercise == list[index]
-                      ? !camera.isTimerRunning
-                          ? AppConstants.colors.primary
-                          : AppConstants.colors.primary
-                      : list[index].isDone
-                          ? AppConstants.colors.primary
-                          : AppConstants.colors.disabled,
-                  gradient: camera.currentExercise == list[index] && camera.isTimerRunning
-                      ? LinearGradient(
-                          colors: [
-                            AppConstants.colors.primary,
-                            AppConstants.colors.disabled,
-                          ],
-                          tileMode: TileMode.decal,
-                          stops: [camera.exerciseProgress, camera.exerciseProgress],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        )
-                      : null,
-                  borderRadius: BorderRadius.circular(32),
-                ),
-                child: RichText(
-                  text: TextSpan(
-                      text: list[index].name,
-                      children: [
-                        TextSpan(
-                          text: camera.isTimerRunning && camera.currentExercise == list[index]
-                              ? '\n${list[index].timer}'
-                              : '\n${list[index].duration}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 12,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' ${list[index].isDone ? '✓' : ''}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: camera.currentExercise == list[index]
-                            ? !camera.isTimerRunning
-                                ? AppConstants.colors.disabled
-                                : Colors.black
-                            : list[index].isDone
-                                ? AppConstants.colors.disabled
-                                : AppConstants.colors.primary,
-                      )),
-                  textAlign: TextAlign.center,
-                )),
+            onLongPress: camera.isTimerRunning || list[index].isDone ? null : () => _editDuration(list[index]),
+            child: _exerciseButton(list[index]),
           ),
-          separatorBuilder: (context, index) => const SizedBox(width: 8),
+          separatorBuilder: (context, index) => const SizedBox(width: 4),
           itemCount: list.length,
         ),
+      ),
+    );
+  }
+
+  Hero _exerciseButton(Exercise index, {bool showDetails = false}) {
+    return Hero(
+      tag: '${index.name}${index.hashCode}',
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        height: 72,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: camera.currentExercise == index || index.isDone
+              ? AppConstants.colors.primary
+              : AppConstants.colors.disabled,
+          gradient: camera.currentExercise == index && camera.isTimerRunning
+              ? LinearGradient(
+                  colors: [
+                    AppConstants.colors.primary,
+                    AppConstants.colors.disabled,
+                  ],
+                  tileMode: TileMode.decal,
+                  stops: [camera.exerciseProgress, camera.exerciseProgress],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                )
+              : null,
+          borderRadius: BorderRadius.circular(32),
+        ),
+        child: index.type == ExerciseType.exercise || showDetails
+            ? RichText(
+                text: TextSpan(
+                    text: index.name,
+                    children: [
+                      TextSpan(
+                        text: camera.isTimerRunning && camera.currentExercise == index
+                            ? '\n${index.timer}'
+                            : '\n${index.duration}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 12,
+                        ),
+                      ),
+                      TextSpan(
+                        text: ' ${index.isDone ? '✓' : ''}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: camera.currentExercise == index
+                          ? !camera.isTimerRunning
+                              ? AppConstants.colors.disabled
+                              : Colors.black
+                          : index.isDone
+                              ? AppConstants.colors.disabled
+                              : AppConstants.colors.primary,
+                    )),
+                textAlign: TextAlign.center,
+              )
+            : Icon(
+                Icons.timer,
+                color: camera.currentExercise == index
+                    ? !camera.isTimerRunning
+                        ? AppConstants.colors.disabled
+                        : Colors.black
+                    : index.isDone
+                        ? AppConstants.colors.disabled
+                        : AppConstants.colors.primary,
+              ),
       ),
     );
   }
@@ -187,4 +201,69 @@ class _CameraViewState extends State<CameraView> {
           ),
         ),
       );
+
+  void _editDuration(Exercise exercise) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: false,
+        barrierDismissible: true,
+        transitionDuration: const Duration(milliseconds: 300),
+        pageBuilder: (BuildContext context, _, __) {
+          Duration duration = exercise.time;
+          return StatefulBuilder(builder: (context, state) {
+            return FadeTransition(
+              opacity: _.drive(CurveTween(curve: Curves.easeInOutCubic)),
+              child: Material(
+                color: Colors.black.withOpacity(.5 * _.value),
+                animationDuration: const Duration(milliseconds: 300),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.all(42),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        RichText(
+                          text: TextSpan(
+                            text: 'Modifica el tiempo de\n',
+                            children: [
+                              TextSpan(
+                                text: exercise.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ],
+                            style: const TextStyle(
+                              color: Colors.black,
+                            ),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        DurationPicker(
+                          duration: duration,
+                          baseUnit: BaseUnit.second,
+                          onChange: (val) {
+                            exercise.time = val;
+                            state(() => duration = val);
+                          },
+                          snapToMins: 5.0,
+                        ),
+                        _exerciseButton(exercise, showDetails: true),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          });
+        },
+      ),
+    );
+  }
 }
