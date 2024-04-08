@@ -37,7 +37,7 @@ class _CameraViewState extends State<CameraView> {
       fit: StackFit.expand,
       children: [
         _liveFeedBody(),
-        if (!camera.isTimerRunning) _backButton(),
+        if (!camera.isTimerRunning || camera.isPaused) _backButton(),
         _switchExercise(),
         _decoration(),
       ],
@@ -82,9 +82,9 @@ class _CameraViewState extends State<CameraView> {
     );
   }
 
-  Hero _exerciseButton(Exercise index, {bool showDetails = false}) {
+  Widget _exerciseButton(Exercise index, {bool showDetails = false}) {
     return Hero(
-      tag: '${index.name}${index.hashCode}',
+      tag: index.heroTag,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         height: 72,
@@ -254,7 +254,10 @@ class _CameraViewState extends State<CameraView> {
                           },
                           snapToMins: 5.0,
                         ),
-                        _exerciseButton(exercise, showDetails: true),
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: _exerciseButton(exercise, showDetails: true),
+                        ),
                       ],
                     ),
                   ),

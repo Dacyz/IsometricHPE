@@ -45,6 +45,9 @@ class Camera extends ChangeNotifier with Settings {
       }
     }
     listExercises = exercisesList;
+    listExercises.forEach((element) {
+      print('hero: ${element.heroTag}');
+    });
   }
 
   var initialCameraLensDirection = CameraLensDirection.back;
@@ -67,36 +70,37 @@ class Camera extends ChangeNotifier with Settings {
   bool changingCameraLens = false;
 
   bool isTimerRunning = false;
+  bool isPaused = false;
   int millisecondsElapsed = 0;
   Timer? timer;
 
-  void startTimer(BuildContext context, [Exercise? currentExercise]) {
+  void _startTimer(BuildContext context, [Exercise? currentExercise]) {
     final exercise = currentExercise ?? this.currentExercise;
     isTimerRunning = true;
     talk(exercise.name);
-
     bool isBecomingOtherExercise = false;
     timer = Timer.periodic(
       const Duration(milliseconds: 10),
       (Timer t) {
+        if (isPaused) return;
         millisecondsElapsed += 10;
         exercise.millisecondsElapsed = millisecondsElapsed;
         if (millisecondsElapsed >= exercise.time.inMilliseconds - 3200 && !isBecomingOtherExercise) {
           isBecomingOtherExercise = true;
           if (exercise.type == ExerciseType.rest) {
-            talk('Preparate');
+            talk('Prepárate');
           } else {
             talk('3 segundos');
           }
         }
         if (millisecondsElapsed >= exercise.time.inMilliseconds) {
-          stopTimer();
+          _stopTimer();
           final id = listExercises.indexOf(exercise);
           millisecondsElapsed = 0;
           exercise.isDone = true;
           if (id != -1 && id < listExercises.length - 1) {
             this.currentExercise = listExercises[id + 1];
-            startTimer(context, this.currentExercise);
+            _startTimer(context, this.currentExercise);
           }
         }
         notifyListeners();
@@ -104,21 +108,35 @@ class Camera extends ChangeNotifier with Settings {
     );
   }
 
-  void restartTimer(BuildContext context) {
+  void start(BuildContext context) {
     listExercises.forEach((element) {
       element.isDone = false;
       element.millisecondsElapsed = 0;
     });
     millisecondsElapsed = 0;
     currentExercise = listExercises.first;
-    startTimer(context);
+    _startTimer(context);
+    isPaused = false;
     notifyListeners();
   }
 
-  void stopTimer() {
+  void _stopTimer() {
     timer?.cancel();
     isTimerRunning = false;
     notifyListeners();
+  }
+
+  void stop() {
+    listExercises.forEach((element) {
+      element.isDone = false;
+      element.millisecondsElapsed = 0;
+    });
+    millisecondsElapsed = 0;
+    currentExercise = listExercises.first;
+    timer?.cancel();
+    isTimerRunning = false;
+    isPaused = false;
+    _stopTimer();
   }
 
   double get exerciseProgress => millisecondsElapsed / currentExercise.time.inMilliseconds;
@@ -217,6 +235,22 @@ class Camera extends ChangeNotifier with Settings {
     await stopLiveFeed();
     await startLiveFeed();
     changingCameraLens = false;
+    notifyListeners();
+  }
+
+  void pause([bool speak = true]) {
+    isPaused = true;
+    if (speak) {
+      talk('Pausado');
+    }
+    notifyListeners();
+  }
+
+  void resume([bool speak = true]) {
+    isPaused = false;
+    if (speak) {
+      talk('Reanudado');
+    }
     notifyListeners();
   }
 

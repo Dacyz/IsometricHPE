@@ -40,6 +40,7 @@ class Exercise extends ExerciseModel {
 
   bool isDone;
   int millisecondsElapsed;
+  String get heroTag => '$name$hashCode';
   String get duration => '${(time.inMilliseconds ~/ 60000).toString().padLeft(2, '0')}:${((time.inMilliseconds ~/ 1000) % 60).toString().padLeft(2, '0')}';
   String get timer =>
       '${(millisecondsElapsed ~/ 60000).toString().padLeft(2, '0')}:${((millisecondsElapsed ~/ 1000) % 60).toString().padLeft(2, '0')}';

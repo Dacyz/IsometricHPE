@@ -35,37 +35,82 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
                         onPressed: camera.isTimerRunning
                             ? null
                             : () {
-                                camera.restartTimer(context);
+                                camera.start(context);
                               },
                       ),
                     ),
+                    if (camera.isTimerRunning) ...[
+                      const SizedBox(width: 8),
+                      FloatingActionButton(
+                        heroTag: "btn1",
+                        elevation: 0,
+                        shape: CircleBorder(
+                          side: BorderSide(color: AppConstants.colors.primary),
+                        ),
+                        onPressed: () {
+                          if (camera.isPaused) {
+                            camera.resume();
+                          } else {
+                            camera.pause();
+                          }
+                        },
+                        highlightElevation: 0,
+                        backgroundColor: Colors.white,
+                        child: Icon(
+                          camera.isPaused ? Icons.play_arrow_outlined : Icons.pause,
+                          color: AppConstants.colors.primary,
+                          size: 25,
+                        ),
+                      )
+                    ],
                     const SizedBox(width: 8),
-                    FloatingActionButton(
-                      elevation: 0,
-                      shape: CircleBorder(
-                          side: BorderSide(color: camera.isTimerRunning ? Colors.grey : AppConstants.colors.primary)),
-                      onPressed: camera.isTimerRunning
-                          ? null
-                          : () {
-                              final camera = Provider.of<Camera>(context, listen: false);
+                    !camera.isTimerRunning
+                        ? FloatingActionButton(
+                            heroTag: "btn2",
+                            elevation: 0,
+                            shape: CircleBorder(side: BorderSide(color: AppConstants.colors.primary)),
+                            onPressed: () {
                               camera.switchLiveCamera();
                             },
-                      highlightElevation: 0,
-                      backgroundColor: Colors.white,
-                      child: Icon(
-                        Icons.flip_camera_android_outlined,
-                        color: camera.isTimerRunning ? Colors.grey : AppConstants.colors.primary,
-                        size: 25,
-                      ),
-                    )
+                            highlightElevation: 0,
+                            backgroundColor: Colors.white,
+                            child: Icon(
+                              Icons.flip_camera_android_outlined,
+                              color: AppConstants.colors.primary,
+                              size: 25,
+                            ),
+                          )
+                        : FloatingActionButton(
+                            heroTag: "btn3",
+                            elevation: 0,
+                            shape: CircleBorder(
+                              side: BorderSide(color: AppConstants.colors.primary),
+                            ),
+                            onPressed: () {
+                              _sureCancel(camera);
+                            },
+                            highlightElevation: 0,
+                            backgroundColor: Colors.white,
+                            child: Icon(
+                              Icons.close,
+                              color: AppConstants.colors.primary,
+                              size: 25,
+                            ),
+                          ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  camera.time,
-                  style: const TextStyle(
-                    fontSize: 72,
-                    fontWeight: FontWeight.w500,
+                Hero(
+                  tag: 'timer',
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Text(
+                      camera.time,
+                      style: const TextStyle(
+                        fontSize: 72,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -82,5 +127,87 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
         ],
       ),
     );
+  }
+
+  void _sureCancel(Camera camera) async {
+    camera.pause(false);
+    final result = await Navigator.push<bool>(
+      context,
+      PageRouteBuilder(
+        opaque: false,
+        barrierDismissible: true,
+        transitionDuration: const Duration(milliseconds: 300),
+        pageBuilder: (BuildContext context, _, __) {
+          return StatefulBuilder(builder: (context, state) {
+            return FadeTransition(
+              opacity: _.drive(CurveTween(curve: Curves.easeInOutCubic)),
+              child: Material(
+                color: Colors.black.withOpacity(.5 * _.value),
+                animationDuration: const Duration(milliseconds: 300),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.all(42),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        RichText(
+                          text: const TextSpan(
+                            text: 'Se pauso el monitoreo\n',
+                            children: [
+                              TextSpan(
+                                text: '¿Estás seguro de cancelar el monitoreo?',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ],
+                            style: TextStyle(
+                              color: Colors.black,
+                            ),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        Hero(
+                          tag: 'timer',
+                          child: Material(
+                            color: Colors.transparent,
+                            child: Text(
+                              camera.time,
+                              style: const TextStyle(
+                                fontSize: 72,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                        CustomElevatedButton(
+                          title: 'Cancelar monitoreo',
+                          onPressed: () => Navigator.pop(context, true),
+                        ),
+                        const SizedBox(height: 8),
+                        CustomElevatedButton.outlined(
+                          title: 'Regresar',
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          });
+        },
+      ),
+    );
+    camera.resume(false);
+    if (result != true) return;
+    camera.stop();
   }
 }
