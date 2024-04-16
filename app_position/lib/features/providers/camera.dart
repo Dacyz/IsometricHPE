@@ -68,9 +68,6 @@ class Camera extends ChangeNotifier with Settings, BD {
       }
     }
     listExercises = exercisesList;
-    listExercises.forEach((element) {
-      print('hero: ${element.heroTag}');
-    });
   }
 
   var initialCameraLensDirection = CameraLensDirection.back;
@@ -139,10 +136,10 @@ class Camera extends ChangeNotifier with Settings, BD {
   }
 
   void start() async {
-    listExercises.forEach((element) {
+    for (var element in listExercises) {
       element.isDone = false;
       element.millisecondsElapsed = 0;
-    });
+    }
     millisecondsElapsed = 0;
     currentExercise = listExercises.first;
     _startTimer();
@@ -158,10 +155,10 @@ class Camera extends ChangeNotifier with Settings, BD {
 
   void stop() {
     _lastDuration = millisecondsElapsed;
-    listExercises.forEach((element) {
+    for (var element in listExercises) {
       element.isDone = false;
       element.millisecondsElapsed = 0;
-    });
+    }
     millisecondsElapsed = 0;
     currentExercise = listExercises.first;
     showExportButton = true;
@@ -179,7 +176,6 @@ class Camera extends ChangeNotifier with Settings, BD {
       resetStatus();
     });
     notifyListeners();
-    print('Int $_lastDuration');
   }
 
   double get exerciseProgress => millisecondsElapsed / currentExercise.time.inMilliseconds;
