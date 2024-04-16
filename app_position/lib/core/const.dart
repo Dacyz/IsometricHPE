@@ -1,4 +1,5 @@
 import 'package:app_position/features/views/screens/pose_detector_view.dart';
+import 'package:app_position/features/views/screens/progress_view.dart';
 import 'package:app_position/features/views/screens/settings_view.dart';
 import 'package:app_position/features/views/screens/splash_view.dart';
 import 'package:flutter/material.dart';
@@ -9,9 +10,13 @@ class AppConstants {
     SplashView.route: (_) => const SplashView(),
     PoseDetectorView.route: (_) => const PoseDetectorView(),
     SettingsView.route: (_) => const SettingsView(),
+    ProgressView.route: (_) => const ProgressView(),
   };
 
   static const initialRoute = SplashView.route;
+
+  static const String dbName = 'AppPosition';
+  static const String dbBox = 'exercises';
 
   static final ConstantColors colors = ConstantColors();
 }
