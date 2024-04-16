@@ -2,13 +2,18 @@ import 'package:app_position/core/const.dart';
 import 'package:app_position/features/providers/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
   // Ensure that widget binding is initialized. This is required before running the app.
   WidgetsFlutterBinding.ensureInitialized();
   // Set the preferred device orientations. In this case, we only allow portrait up.
   SystemChrome.setPreferredOrientations(const [DeviceOrientation.portraitUp]);
+  // Initialize Hive
+  final directory = await getApplicationDocumentsDirectory();
+  await Hive.initFlutter(directory.path);
   runApp(const MainApp());
 }
 

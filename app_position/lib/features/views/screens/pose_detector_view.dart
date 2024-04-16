@@ -32,11 +32,7 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
                     Expanded(
                       child: CustomElevatedButton(
                         title: 'Ejercitarse',
-                        onPressed: camera.isTimerRunning
-                            ? null
-                            : () {
-                                camera.start(context);
-                              },
+                        onPressed: camera.isTimerRunning ? null : camera.start,
                       ),
                     ),
                     if (camera.isTimerRunning) ...[
@@ -62,6 +58,26 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
                           size: 25,
                         ),
                       )
+                    ],
+                    if (!camera.isTimerRunning && camera.showExportButton) ...[
+                      const SizedBox(width: 8),
+                      FloatingActionButton(
+                        heroTag: "btn4",
+                        elevation: 0,
+                        shape: CircleBorder(side: BorderSide(color: AppConstants.colors.primary)),
+                        onPressed: () {
+                          camera.export(context);
+                        },
+                        highlightElevation: 0,
+                        backgroundColor: Colors.white,
+                        child: camera.isLoading
+                            ? const CircularProgressIndicator()
+                            : Icon(
+                                camera.isError ? Icons.close : camera.isCompleted ? Icons.file_download_done_outlined : Icons.file_download_outlined,
+                                color: camera.isError ? Colors.red : AppConstants.colors.primary,
+                                size: 25,
+                              ),
+                      ),
                     ],
                     const SizedBox(width: 8),
                     !camera.isTimerRunning

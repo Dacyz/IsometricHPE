@@ -1,8 +1,11 @@
+import 'package:app_position/features/providers/camera.dart';
 import 'package:app_position/features/views/screens/pose_detector_view.dart';
+import 'package:app_position/features/views/screens/progress_view.dart';
 import 'package:app_position/features/views/screens/settings_view.dart';
 import 'package:app_position/features/views/widgets/custom_elevated_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
 class SplashView extends StatelessWidget {
   const SplashView({super.key});
@@ -10,6 +13,7 @@ class SplashView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Provider.of<Camera>(context, listen: false);
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(24),
@@ -37,7 +41,7 @@ class SplashView extends StatelessWidget {
             const SizedBox(height: 10.0),
             CustomElevatedButton.outlined(
               title: 'Progreso',
-              onPressed: () => false,
+              onPressed: () => Navigator.pushNamed(context, ProgressView.route),
             ),
             const SizedBox(height: 10.0),
             CustomElevatedButton.outlined(

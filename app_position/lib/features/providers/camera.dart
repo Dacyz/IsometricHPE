@@ -1,19 +1,27 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:app_position/core/const.dart';
+import 'package:app_position/core/extensions/integer.dart';
 import 'package:app_position/features/data/exercise.dart';
-import 'package:app_position/features/models/exercise.dart';
+import 'package:app_position/features/models/exercise/exercise.dart';
+import 'package:app_position/features/models/pose_detail/pose.dart' as kit;
+import 'package:app_position/features/models/pose_detail/pose_detail.dart';
+import 'package:app_position/features/models/routine/routine.dart';
+import 'package:app_position/features/providers/hive.dart';
 import 'package:app_position/features/providers/settings.dart';
 import 'package:app_position/features/views/widgets/pose_painter.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:wakelock/wakelock.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
-class Camera extends ChangeNotifier with Settings {
+class Camera extends ChangeNotifier with Settings, BD {
   Camera() {
     _initTTS();
     initExercises();
+    _initBD();
   }
 
   void _initTTS() async {
@@ -33,6 +41,21 @@ class Camera extends ChangeNotifier with Settings {
       notifyListeners();
     } catch (ex) {
       debugPrint(ex.toString());
+    }
+  }
+
+  void _initBD() async {
+    try {
+      // Open your box. Optional: Give it a type.
+      Hive.registerAdapter(RoutineAdapter());
+      Hive.registerAdapter(PoseDetailAdapter());
+      Hive.registerAdapter(kit.PoseAdapter());
+      Hive.registerAdapter(kit.PoseLandmarkAdapter());
+      Hive.registerAdapter(ExerciseModelAdapter());
+      Hive.registerAdapter(ExerciseTypeAdapter());
+      exerciseBox = await Hive.openBox<Routine>(AppConstants.dbBox);
+    } catch (ex) {
+      debugPrint('initBD ${ex.toString()}');
     }
   }
 
@@ -59,6 +82,8 @@ class Camera extends ChangeNotifier with Settings {
     dBridge,
     cBridge,
   ];
+
+  PoseDetails currentPoseList = [];
   late Exercise currentExercise = listExercises.first;
   int get fullTime =>
       listExercises.reduce((value, element) => element.copyWith(time: value.time + element.time)).time.inSeconds;
@@ -71,10 +96,12 @@ class Camera extends ChangeNotifier with Settings {
 
   bool isTimerRunning = false;
   bool isPaused = false;
+  bool showExportButton = false;
   int millisecondsElapsed = 0;
+  int _lastDuration = 0;
   Timer? timer;
 
-  void _startTimer(BuildContext context, [Exercise? currentExercise]) {
+  void _startTimer([Exercise? currentExercise]) {
     final exercise = currentExercise ?? this.currentExercise;
     isTimerRunning = true;
     talk(exercise.name);
@@ -94,28 +121,31 @@ class Camera extends ChangeNotifier with Settings {
           }
         }
         if (millisecondsElapsed >= exercise.time.inMilliseconds) {
+          _lastDuration = millisecondsElapsed;
           _stopTimer();
           final id = listExercises.indexOf(exercise);
           millisecondsElapsed = 0;
           exercise.isDone = true;
           if (id != -1 && id < listExercises.length - 1) {
             this.currentExercise = listExercises[id + 1];
-            _startTimer(context, this.currentExercise);
+            _startTimer(this.currentExercise);
+            return;
           }
+          showExportButton = true;
         }
         notifyListeners();
       },
     );
   }
 
-  void start(BuildContext context) {
+  void start() async {
     listExercises.forEach((element) {
       element.isDone = false;
       element.millisecondsElapsed = 0;
     });
     millisecondsElapsed = 0;
     currentExercise = listExercises.first;
-    _startTimer(context);
+    _startTimer();
     isPaused = false;
     notifyListeners();
   }
@@ -127,16 +157,29 @@ class Camera extends ChangeNotifier with Settings {
   }
 
   void stop() {
+    _lastDuration = millisecondsElapsed;
     listExercises.forEach((element) {
       element.isDone = false;
       element.millisecondsElapsed = 0;
     });
     millisecondsElapsed = 0;
     currentExercise = listExercises.first;
-    timer?.cancel();
-    isTimerRunning = false;
+    showExportButton = true;
     isPaused = false;
     _stopTimer();
+  }
+
+  void export(BuildContext context) async {
+    final newId = await putRoutine(detail: currentPoseList, date: DateTime.now(), duration: _lastDuration.toDuration);
+    if (newId != -1) {
+      currentPoseList.clear();
+    }
+    Future.delayed(const Duration(seconds: 5), () {
+      showExportButton = false;
+      resetStatus();
+    });
+    notifyListeners();
+    print('Int $_lastDuration');
   }
 
   double get exerciseProgress => millisecondsElapsed / currentExercise.time.inMilliseconds;
@@ -178,6 +221,9 @@ class Camera extends ChangeNotifier with Settings {
     if (poses.isEmpty || inputImage.metadata?.size == null || inputImage.metadata?.rotation == null) {
       customPaint = null;
       return;
+    }
+    if (isTimerRunning && !isPaused && millisecondsElapsed % 25 == 0) {
+      currentPoseList.add(PoseDetail(kit.Pose.fromHive(poses.first), exercise: currentExercise));
     }
     customPaint = CustomPaint(
       painter: PosePainter(

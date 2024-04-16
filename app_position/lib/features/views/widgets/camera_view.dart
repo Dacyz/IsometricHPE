@@ -1,5 +1,5 @@
 import 'package:app_position/core/const.dart';
-import 'package:app_position/features/models/exercise.dart';
+import 'package:app_position/features/models/exercise/exercise.dart';
 import 'package:app_position/features/providers/camera.dart';
 import 'package:camera/camera.dart';
 import 'package:duration_picker/duration_picker.dart';

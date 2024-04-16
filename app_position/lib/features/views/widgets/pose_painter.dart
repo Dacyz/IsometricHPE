@@ -1,4 +1,4 @@
-import 'package:app_position/features/models/exercise.dart';
+import 'package:app_position/features/models/exercise/exercise.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
@@ -20,7 +20,9 @@ class PosePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    currentExercise.toPaint(canvas, size, poses, imageSize, rotation, cameraLensDirection);
+    if (currentExercise.toPaint != null) {
+      currentExercise.toPaint!(canvas, size, poses, imageSize, rotation, cameraLensDirection);
+    }
   }
 
   @override
