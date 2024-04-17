@@ -73,7 +73,11 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
                         child: camera.isLoading
                             ? const CircularProgressIndicator()
                             : Icon(
-                                camera.isError ? Icons.close : camera.isCompleted ? Icons.file_download_done_outlined : Icons.file_download_outlined,
+                                camera.isError
+                                    ? Icons.close
+                                    : camera.isCompleted
+                                        ? Icons.file_download_done_outlined
+                                        : Icons.file_download_outlined,
                                 color: camera.isError ? Colors.red : AppConstants.colors.primary,
                                 size: 25,
                               ),
@@ -122,6 +126,9 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
                     color: Colors.transparent,
                     child: Text(
                       camera.time,
+                      maxLines: 1,
+                      overflow: TextOverflow.clip,
+                      textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 72,
                         fontWeight: FontWeight.w500,
@@ -196,6 +203,9 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
                             color: Colors.transparent,
                             child: Text(
                               camera.time,
+                              maxLines: 1,
+                              overflow: TextOverflow.clip,
+                              textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 72,
                                 fontWeight: FontWeight.w500,
