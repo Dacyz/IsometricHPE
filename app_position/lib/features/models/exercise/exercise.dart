@@ -26,7 +26,7 @@ class ExerciseModel {
   Duration get time => Duration(milliseconds: timeInMilliseconds);
   set time(Duration value) => timeInMilliseconds = value.inMilliseconds;
 
-  final void Function(Canvas canvas, Size size, Pose poses, Size imageSize, InputImageRotation rotation,
+  final String Function(Canvas canvas, Size size, Pose poses, Size imageSize, InputImageRotation rotation,
       CameraLensDirection cameraLensDirection)? toPaint;
 
   Exercise toExercise() => Exercise.exercise(this);
@@ -59,7 +59,7 @@ class Exercise extends ExerciseModel {
       name: 'Descanso',
       type: ExerciseType.rest,
       time: const Duration(seconds: 10),
-      toPaint: (canvas, size, pose, imageSize, rotation, cameraLensDirection) {},
+      toPaint: (canvas, size, pose, imageSize, rotation, cameraLensDirection) => '',
     );
   }
 
@@ -100,7 +100,7 @@ class Exercise extends ExerciseModel {
     Duration? time,
     bool? isDone,
     int? millisecondsElapsed,
-    Function(Canvas canvas, Size size, Pose poses, Size imageSize, InputImageRotation rotation,
+    String Function(Canvas canvas, Size size, Pose poses, Size imageSize, InputImageRotation rotation,
             CameraLensDirection cameraLensDirection)?
         toPaint,
   }) {

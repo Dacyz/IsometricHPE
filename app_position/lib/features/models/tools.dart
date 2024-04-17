@@ -50,6 +50,26 @@ class ExerciseTools {
     return calcularAnguloEntreTresPuntos(startPoint, middlePoint, endPoint);
   }
 
+  double getAngleToFloor(PoseLandmarkType middle, PoseLandmarkType start) {
+    final PoseLandmark joint1 = pose.landmarks[middle]!;
+    final middlePoint = poseOffset(
+      joint1,
+      size,
+      imageSize,
+      rotation,
+      cameraLensDirection,
+    );
+    final PoseLandmark joint2 = pose.landmarks[start]!;
+    final startPoint = poseOffset(
+      joint2,
+      size,
+      imageSize,
+      rotation,
+      cameraLensDirection,
+    );
+    return calcularAnguloEntreTresPuntos(startPoint, middlePoint, Offset(middlePoint.dx, size.height));
+  }
+
   double getDistance(PoseLandmarkType start, PoseLandmarkType end) {
     final PoseLandmark joint2 = pose.landmarks[start]!;
     final point1 = poseOffset(
@@ -127,7 +147,11 @@ class ExerciseTools {
         children: paintDescription
             .map<TextSpan>((e) => TextSpan(
                   text: e,
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12,
+                  ),
                 ))
             .toList(),
       ),
@@ -135,6 +159,6 @@ class ExerciseTools {
       textDirection: TextDirection.ltr,
     );
     tp2.layout();
-    tp2.paint(canvas, Offset(size.width * 0.2, size.height * 0.3));
+    tp2.paint(canvas, Offset(80,124));
   }
 }

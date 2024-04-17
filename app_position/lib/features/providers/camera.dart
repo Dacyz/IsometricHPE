@@ -73,7 +73,7 @@ class Camera extends ChangeNotifier with Settings, BD {
   var initialCameraLensDirection = CameraLensDirection.back;
   List<CameraDescription> cameras = [];
   List<Exercise> listExercises = [
-    fullBridge,
+    lowPlankIsometric,
     sideLeftBridge,
     sideRightBridge,
     dBridge,

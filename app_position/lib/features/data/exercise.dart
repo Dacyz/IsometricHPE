@@ -4,25 +4,26 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
 final List<Exercise> data = [
-  fullBridge,
+  lowPlankIsometric,
   sideLeftBridge,
   sideRightBridge,
   dBridge,
   cBridge,
 ];
 
-final Exercise fullBridge = Exercise(
-  name: 'Full Bridge',
+final Exercise lowPlankIsometric = Exercise(
+  name: 'Low plank isometric',
   time: const Duration(seconds: 60),
   toPaint: (canvas, size, pose, imageSize, rotation, cameraLensDirection) {
     final leftPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0
-      ..color = Colors.yellow;
-    final rightPaint = Paint()
+      ..color = Colors.green;
+    final rightPaint = leftPaint;
+    final wrongPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0
-      ..color = Colors.blueAccent;
+      ..color = Colors.redAccent;
 
     final tool = ExerciseTools(
       canvas,
@@ -33,22 +34,30 @@ final Exercise fullBridge = Exercise(
       cameraLensDirection: cameraLensDirection,
     );
 
-    //Draw arms
-    tool.paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftElbow, leftPaint);
-    tool.paintLine(PoseLandmarkType.leftElbow, PoseLandmarkType.leftWrist, leftPaint);
-    tool.paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightElbow, rightPaint);
-    tool.paintLine(PoseLandmarkType.rightElbow, PoseLandmarkType.rightWrist, rightPaint);
-
-    //Draw Body
-    tool.paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftHip, leftPaint);
-    tool.paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip, rightPaint);
-
     final angle1 = tool.getAngle(PoseLandmarkType.leftElbow, PoseLandmarkType.leftShoulder, PoseLandmarkType.leftWrist);
     final angle2 =
         tool.getAngle(PoseLandmarkType.rightElbow, PoseLandmarkType.rightShoulder, PoseLandmarkType.rightWrist);
+    final angle0 = tool.getAngleToFloor(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftHip);
+    final angle3 = tool.getAngleToFloor(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip);
 
     final validationAngle1 = (angle1 < 120 && angle1 > 30) || (angle1 > 240 && angle1 < 290);
     final validationAngle2 = (angle2 > 30 && angle2 < 120) || (angle2 < 290 && angle2 > 240);
+    final validationFloor = (angle0 >= 265 && angle0 <= 280) && (angle3 >= 265 && angle3 <= 280) ||
+        (angle0 >= 85 && angle0 <= 100) && (angle3 >= 85 && angle3 <= 100);
+
+    //Draw arms
+    tool.paintLine(
+        PoseLandmarkType.leftShoulder, PoseLandmarkType.leftElbow, validationAngle1 ? leftPaint : wrongPaint);
+    tool.paintLine(PoseLandmarkType.leftElbow, PoseLandmarkType.leftWrist, validationAngle1 ? leftPaint : wrongPaint);
+    tool.paintLine(
+        PoseLandmarkType.rightShoulder, PoseLandmarkType.rightElbow, validationAngle2 ? rightPaint : wrongPaint);
+    tool.paintLine(
+        PoseLandmarkType.rightElbow, PoseLandmarkType.rightWrist, validationAngle2 ? rightPaint : wrongPaint);
+
+    //Draw Body
+    tool.paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftHip, validationFloor ? leftPaint : wrongPaint);
+    tool.paintLine(
+        PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip, validationFloor ? rightPaint : wrongPaint);
 
     //Draw Angles
     tool.paintAngle(PoseLandmarkType.leftElbow, angle1, validationAngle1 ? Colors.green : Colors.red);
@@ -58,8 +67,34 @@ final Exercise fullBridge = Exercise(
     tool.paintLine(PoseLandmarkType.leftKnee, PoseLandmarkType.leftAnkle, leftPaint);
     tool.paintLine(PoseLandmarkType.rightHip, PoseLandmarkType.rightKnee, rightPaint);
     tool.paintLine(PoseLandmarkType.rightKnee, PoseLandmarkType.rightAnkle, rightPaint);
+    String value = '';
+    if (!validationFloor) {
+      value = '${angle0.toStringAsFixed(2)} ${angle3.toStringAsFixed(2)} ';
+      final diff = angle0 - angle3;
+      if (diff.abs() >= 10) {
+        value = 'Tu cuerpo no esta recto';
+      } else {
+        if (angle0 < 85 || angle0 < 265 || angle3 < 85 || angle3 < 265) {
+          value = 'Eleva tu cadera';
+        }
+      }
+    }
+    if (!validationAngle1) {
+      value = 'Tu brazo izquierdo no esta correctamente ubicado';
+    }
+    if (!validationAngle2) {
+      value = 'Tu brazo derecho no esta correctamente ubicado';
+    }
 
-    tool.paintDescription([' \n${angle1.toStringAsFixed(2)}', ' \n${angle2.toStringAsFixed(2)}']);
+
+    tool.paintDescription([
+      '\n$value',
+      ' \n Cadera Izquierda: ${angle0.toStringAsFixed(2)}',
+      ' \n Cadera Derecha: ${angle3.toStringAsFixed(2)}',
+      ' \n Brazo Izquierdo: ${angle1.toStringAsFixed(2)}',
+      ' \n Brazo Derecho: ${angle2.toStringAsFixed(2)}',
+    ]);
+    return value;
   },
 );
 
@@ -121,6 +156,8 @@ final Exercise sideLeftBridge = Exercise(
       ' \nDistance1: ${distance1.toStringAsFixed(2)}',
       ' \nDistance2: ${distance2.toStringAsFixed(2)}',
     ]);
+
+    return '';
   },
 );
 
@@ -172,6 +209,8 @@ final Exercise sideRightBridge = Exercise(
     tool.paintLine(PoseLandmarkType.rightKnee, PoseLandmarkType.rightAnkle, rightPaint);
 
     tool.paintDescription([' \n${angle1.toStringAsFixed(2)}', ' \n${angle2.toStringAsFixed(2)}']);
+
+    return '';
   },
 );
 
@@ -223,6 +262,8 @@ final Exercise dBridge = Exercise(
     tool.paintLine(PoseLandmarkType.rightKnee, PoseLandmarkType.rightAnkle, rightPaint);
 
     tool.paintDescription([' \n${angle1.toStringAsFixed(2)}', ' \n${angle2.toStringAsFixed(2)}']);
+
+    return '';
   },
 );
 
@@ -274,5 +315,7 @@ final Exercise cBridge = Exercise(
     tool.paintLine(PoseLandmarkType.rightKnee, PoseLandmarkType.rightAnkle, rightPaint);
 
     tool.paintDescription([' \n${angle1.toStringAsFixed(2)}', ' \n${angle2.toStringAsFixed(2)}']);
+
+    return '';
   },
 );
