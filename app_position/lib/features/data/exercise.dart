@@ -34,6 +34,8 @@ final Exercise lowPlankIsometric = Exercise(
       cameraLensDirection: cameraLensDirection,
     );
 
+    final direction = tool.isLookingRight();
+
     final angle1 = tool.getAngle(PoseLandmarkType.leftElbow, PoseLandmarkType.leftShoulder, PoseLandmarkType.leftWrist);
     final angle2 =
         tool.getAngle(PoseLandmarkType.rightElbow, PoseLandmarkType.rightShoulder, PoseLandmarkType.rightWrist);
@@ -42,7 +44,7 @@ final Exercise lowPlankIsometric = Exercise(
 
     final validationAngle1 = (angle1 < 120 && angle1 > 30) || (angle1 > 240 && angle1 < 290);
     final validationAngle2 = (angle2 > 30 && angle2 < 120) || (angle2 < 290 && angle2 > 240);
-    final validationFloor = (angle0 >= 265 && angle0 <= 280) && (angle3 >= 265 && angle3 <= 280) ||
+    final validationFloor = (angle0 >= 260 && angle0 <= 280) && (angle3 >= 260 && angle3 <= 280) ||
         (angle0 >= 85 && angle0 <= 100) && (angle3 >= 85 && angle3 <= 100);
 
     //Draw arms
@@ -74,23 +76,30 @@ final Exercise lowPlankIsometric = Exercise(
       if (diff.abs() >= 10) {
         value = 'Tu cuerpo no esta recto';
       } else {
-        if (angle0 < 85 || angle0 < 265 || angle3 < 85 || angle3 < 265) {
+        final caderaPosition = direction ? angle0 < 260 : angle0 >= 85;
+        if (caderaPosition) {
           value = 'Eleva tu cadera';
+        } else {
+          value = 'Baja tu cadera';
         }
       }
     }
-    if (!validationAngle1) {
-      value = 'Tu brazo izquierdo no esta correctamente ubicado';
+    if (!validationAngle1 && !validationAngle2) {
+      value = 'Tus brazos no esta correctamente ubicados';
+    } else {
+      if (!validationAngle1) {
+        value = 'Tu brazo izquierdo no esta correctamente ubicado';
+      }
+      if (!validationAngle2) {
+        value = 'Tu brazo derecho no esta correctamente ubicado';
+      }
     }
-    if (!validationAngle2) {
-      value = 'Tu brazo derecho no esta correctamente ubicado';
-    }
-
 
     tool.paintDescription([
-      '\n$value',
-      ' \n Cadera Izquierda: ${angle0.toStringAsFixed(2)}',
-      ' \n Cadera Derecha: ${angle3.toStringAsFixed(2)}',
+      ' \n Resultado: $value',
+      ' \n Mirando: ${direction ? 'Derecha' : 'Izquierda'}',
+      ' \n Hombro Izquierda: ${angle0.toStringAsFixed(2)}',
+      ' \n Hombro Derecha: ${angle3.toStringAsFixed(2)}',
       ' \n Brazo Izquierdo: ${angle1.toStringAsFixed(2)}',
       ' \n Brazo Derecho: ${angle2.toStringAsFixed(2)}',
     ]);

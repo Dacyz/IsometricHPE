@@ -50,6 +50,12 @@ class ExerciseTools {
     return calcularAnguloEntreTresPuntos(startPoint, middlePoint, endPoint);
   }
 
+  bool isLookingRight() {
+    final PoseLandmark eye = pose.landmarks[PoseLandmarkType.leftEye]!;
+    final knee = pose.landmarks[PoseLandmarkType.rightHeel]!;
+    return knee.x > eye.x;
+  }
+
   double getAngleToFloor(PoseLandmarkType middle, PoseLandmarkType start) {
     final PoseLandmark joint1 = pose.landmarks[middle]!;
     final middlePoint = poseOffset(
@@ -159,6 +165,6 @@ class ExerciseTools {
       textDirection: TextDirection.ltr,
     );
     tp2.layout();
-    tp2.paint(canvas, Offset(80,124));
+    tp2.paint(canvas, Offset(80, 124));
   }
 }
