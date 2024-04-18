@@ -76,6 +76,12 @@ class ExerciseTools {
     return calcularAnguloEntreTresPuntos(startPoint, middlePoint, Offset(middlePoint.dx, size.height));
   }
 
+  double calculateDistance(PoseLandmarkType start, PoseLandmarkType end) {
+    final PoseLandmark point1 = pose.landmarks[start]!;
+    final PoseLandmark point2 = pose.landmarks[end]!;
+    return sqrt(pow(point2.x - point1.x, 2) + pow(point2.y - point1.y, 2) + pow(point2.z - point1.z, 2));
+  }
+
   double getDistance(PoseLandmarkType start, PoseLandmarkType end) {
     final PoseLandmark joint2 = pose.landmarks[start]!;
     final point1 = poseOffset(
@@ -93,6 +99,20 @@ class ExerciseTools {
       rotation,
       cameraLensDirection,
     );
+    final double dx = point1.dx - point2.dx;
+    final double dy = point1.dy - point2.dy;
+    return sqrt(dx * dx + dy * dy);
+  }
+
+  double getDistanceToFloor(PoseLandmarkType start) {
+    final point1 = poseOffset(
+      pose.landmarks[start]!,
+      size,
+      imageSize,
+      rotation,
+      cameraLensDirection,
+    );
+    final point2 = Offset(point1.dx, size.height);
     final double dx = point1.dx - point2.dx;
     final double dy = point1.dy - point2.dy;
     return sqrt(dx * dx + dy * dy);
