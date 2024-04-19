@@ -7,8 +7,8 @@ final List<Exercise> data = [
   lowPlankIsometric,
   sideLeftBridge,
   sideRightBridge,
-  dBridge,
-  cBridge,
+  birdDogLeft,
+  birdDogRight,
 ];
 
 final Exercise lowPlankIsometric = Exercise(
@@ -277,18 +277,10 @@ final Exercise sideRightBridge = Exercise(
   },
 );
 
-final Exercise dBridge = Exercise(
-  name: 'Proob 1.0',
-  time: const Duration(seconds: 10),
+final Exercise birdDogLeft = Exercise(
+  name: 'Bird dog left',
+  time: const Duration(seconds: 30),
   toPaint: (canvas, size, pose, imageSize, rotation, cameraLensDirection) {
-    final leftPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
-      ..color = Colors.yellow;
-    final rightPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
-      ..color = Colors.blueAccent;
     final tool = ExerciseTools(
       canvas,
       size: size,
@@ -298,50 +290,132 @@ final Exercise dBridge = Exercise(
       cameraLensDirection: cameraLensDirection,
     );
 
+    final direction = tool.isLookingRight();
+    String value = '';
+
+    final angleLeftShoulder =
+        tool.getAngle(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftElbow, PoseLandmarkType.leftHip);
+    final angleLeftHip =
+        tool.getAngle(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftKnee, PoseLandmarkType.leftHip);
+
+    final angleRightShoulder =
+        tool.getAngle(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightElbow, PoseLandmarkType.rightHip);
+    final angleRightHip =
+        tool.getAngle(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightKnee, PoseLandmarkType.rightHip);
+
+    final validationLeftShoulder = direction
+        ? angleLeftShoulder > 0 && angleLeftShoulder < 30
+        : angleLeftShoulder < 350 && angleLeftShoulder > 310;
+
+    final validationRightShoulder = direction
+        ? angleRightShoulder > 85 && angleRightShoulder < 120
+        : angleRightShoulder > 245 && angleRightShoulder < 275;
+
+    final validationLeftHip =
+        direction ? angleLeftHip > 140 && angleLeftHip < 170 : angleLeftHip > 180 && angleLeftHip < 215;
+
+    final validationRightHip =
+        direction ? angleRightHip > 170 && angleRightHip < 190 : angleRightHip > 170 && angleRightHip < 200;
+    if (direction) {
+      if (!validationLeftShoulder) {
+        if (angleLeftShoulder > 30) {
+          value = 'Levanta el brazo izquierdo';
+        } else {
+          value = 'Baja el brazo izquierdo';
+        }
+      }
+      if (!validationRightHip) {
+        if (angleRightHip < 190) {
+          value = 'Baja la pierna derecha';
+        } else {
+          value = 'Levanta la pierna derecha';
+        }
+      }
+    } else {
+      if (!validationLeftShoulder) {
+        if (angleLeftShoulder > 310) {
+          value = 'Baja el brazo izquierdo';
+        } else {
+          value = 'Levanta el brazo izquierdo';
+        }
+      }
+      if (!validationRightHip) {
+        if (angleRightHip < 170) {
+          value = 'Baja la pierna derecha';
+        } else {
+          value = 'Levanta la pierna derecha';
+        }
+      }
+    }
+    if (!validationLeftHip) {
+      value = 'Tu pierna izquierda debe estar recta';
+    }
+    if (!validationRightShoulder) {
+      value = 'Tu brazo derecho debe estar recto';
+    }
+
+    tool.paintAngle(
+      PoseLandmarkType.leftShoulder,
+      angleLeftShoulder,
+      validationLeftShoulder ? Colors.green : Colors.red,
+    );
+    tool.paintAngle(
+      PoseLandmarkType.leftHip,
+      angleLeftHip,
+      validationLeftHip ? Colors.green : Colors.red,
+    );
+    tool.paintAngle(
+      PoseLandmarkType.rightShoulder,
+      angleRightShoulder,
+      validationRightShoulder ? Colors.green : Colors.red,
+    );
+    tool.paintAngle(
+      PoseLandmarkType.rightHip,
+      angleRightHip,
+      validationRightHip ? Colors.green : Colors.red,
+    );
+    final wrongPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.0
+      ..color = Colors.redAccent;
+    final rightPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.0
+      ..color = Colors.green;
+    final paint = rightPaint;
+
     //Draw arms
-    tool.paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftElbow, leftPaint);
-    tool.paintLine(PoseLandmarkType.leftElbow, PoseLandmarkType.leftWrist, leftPaint);
-    tool.paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightElbow, rightPaint);
-    tool.paintLine(PoseLandmarkType.rightElbow, PoseLandmarkType.rightWrist, rightPaint);
+    tool.paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftElbow, validationLeftShoulder ? paint : wrongPaint);
+    tool.paintLine(PoseLandmarkType.leftElbow, PoseLandmarkType.leftWrist, validationLeftShoulder ? paint : wrongPaint);
+    tool.paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightElbow, validationRightShoulder ? paint : wrongPaint);
+    tool.paintLine(PoseLandmarkType.rightElbow, PoseLandmarkType.rightWrist, validationRightShoulder ? paint : wrongPaint);
 
     //Draw Body
-    tool.paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftHip, leftPaint);
-    tool.paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip, rightPaint);
-
-    final angle1 = tool.getAngle(PoseLandmarkType.leftElbow, PoseLandmarkType.leftShoulder, PoseLandmarkType.leftWrist);
-    final angle2 =
-        tool.getAngle(PoseLandmarkType.rightElbow, PoseLandmarkType.rightShoulder, PoseLandmarkType.rightWrist);
-
-    final validationAngle1 = (angle1 < 120 && angle1 > 30) || (angle1 > 240 && angle1 < 290);
-    final validationAngle2 = (angle2 > 30 && angle2 < 120) || (angle2 < 290 && angle2 > 240);
-
-    tool.paintAngle(PoseLandmarkType.leftElbow, angle1, validationAngle1 ? Colors.green : Colors.red);
-    tool.paintAngle(PoseLandmarkType.rightElbow, angle2, validationAngle2 ? Colors.green : Colors.red);
+    tool.paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftHip, paint);
+    tool.paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip, paint);
 
     //Draw legs
-    tool.paintLine(PoseLandmarkType.leftHip, PoseLandmarkType.leftKnee, leftPaint);
-    tool.paintLine(PoseLandmarkType.leftKnee, PoseLandmarkType.leftAnkle, leftPaint);
-    tool.paintLine(PoseLandmarkType.rightHip, PoseLandmarkType.rightKnee, rightPaint);
-    tool.paintLine(PoseLandmarkType.rightKnee, PoseLandmarkType.rightAnkle, rightPaint);
+    tool.paintLine(PoseLandmarkType.leftHip, PoseLandmarkType.leftKnee, validationLeftHip ? paint : wrongPaint);
+    tool.paintLine(PoseLandmarkType.leftKnee, PoseLandmarkType.leftAnkle, validationLeftHip ? paint : wrongPaint);
+    tool.paintLine(PoseLandmarkType.rightHip, PoseLandmarkType.rightKnee, validationRightHip ? paint : wrongPaint);
+    tool.paintLine(PoseLandmarkType.rightKnee, PoseLandmarkType.rightAnkle, validationRightHip ? paint : wrongPaint);
 
-    tool.paintDescription([' \n${angle1.toStringAsFixed(2)}', ' \n${angle2.toStringAsFixed(2)}']);
-
-    return '';
+    tool.paintDescription([
+      ' \n Resultado: $value',
+      ' \n Mirando: ${direction ? 'Derecha' : 'Izquierda'}',
+      ' \n Brazo izquierdo: ${angleLeftShoulder.toStringAsFixed(2)}',
+      ' \n Brazo derecho: ${angleRightShoulder.toStringAsFixed(2)}',
+      ' \n Costado izquierdo: ${angleLeftHip.toStringAsFixed(2)}',
+      ' \n Costado derecho: ${angleRightHip.toStringAsFixed(2)}',
+    ]);
+    return value;
   },
 );
 
-final Exercise cBridge = Exercise(
-  name: 'Proob 2.0',
-  time: const Duration(seconds: 10),
+final Exercise birdDogRight = Exercise(
+  name: 'Bird dog right',
+  time: const Duration(seconds: 30),
   toPaint: (canvas, size, pose, imageSize, rotation, cameraLensDirection) {
-    final leftPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
-      ..color = Colors.yellow;
-    final rightPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
-      ..color = Colors.blueAccent;
     final tool = ExerciseTools(
       canvas,
       size: size,
@@ -351,34 +425,127 @@ final Exercise cBridge = Exercise(
       cameraLensDirection: cameraLensDirection,
     );
 
+    final direction = tool.isLookingRight();
+    String value = '';
+
+    final angleLeftShoulder =
+        tool.getAngle(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftElbow, PoseLandmarkType.leftHip);
+    final angleLeftHip =
+        tool.getAngle(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftKnee, PoseLandmarkType.leftHip);
+
+    final angleRightShoulder =
+        tool.getAngle(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightElbow, PoseLandmarkType.rightHip);
+    final angleRightHip =
+        tool.getAngle(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightKnee, PoseLandmarkType.rightHip);
+
+    final validationLeftShoulder = direction
+        ? angleLeftShoulder > 85 && angleLeftShoulder < 120
+        : angleLeftShoulder > 245 && angleLeftShoulder < 275;
+
+    final validationRightShoulder = direction
+        ? angleRightShoulder > 0 && angleRightShoulder < 30
+        : angleRightShoulder < 350 && angleRightShoulder > 310;
+
+    final validationLeftHip =
+        direction ? angleLeftHip > 170 && angleLeftHip < 190 : angleLeftHip > 170 && angleLeftHip < 200;
+
+    final validationRightHip =
+        direction ? angleRightHip > 140 && angleRightHip < 170 : angleRightHip > 180 && angleRightHip < 215;
+    if (direction) {
+      if (!validationLeftShoulder) {
+        if (angleLeftShoulder > 30) {
+          value = 'Levanta el brazo izquierdo';
+        } else {
+          value = 'Baja el brazo izquierdo';
+        }
+      }
+      if (!validationRightHip) {
+        if (angleRightHip < 190) {
+          value = 'Baja la pierna derecha';
+        } else {
+          value = 'Levanta la pierna derecha';
+        }
+      }
+    } else {
+      if (!validationLeftShoulder) {
+        if (angleLeftShoulder > 310) {
+          value = 'Baja el brazo izquierdo';
+        } else {
+          value = 'Levanta el brazo izquierdo';
+        }
+      }
+      if (!validationRightHip) {
+        if (angleRightHip < 170) {
+          value = 'Baja la pierna derecha';
+        } else {
+          value = 'Levanta la pierna derecha';
+        }
+      }
+    }
+    if (!validationLeftHip) {
+      value = 'Tu pierna izquierda debe estar recta';
+    }
+    if (!validationRightShoulder) {
+      value = 'Tu brazo derecho debe estar recto';
+    }
+
+    tool.paintAngle(
+      PoseLandmarkType.leftShoulder,
+      angleLeftShoulder,
+      validationLeftShoulder ? Colors.green : Colors.red,
+    );
+    tool.paintAngle(
+      PoseLandmarkType.leftHip,
+      angleLeftHip,
+      validationLeftHip ? Colors.green : Colors.red,
+    );
+    tool.paintAngle(
+      PoseLandmarkType.rightShoulder,
+      angleRightShoulder,
+      validationRightShoulder ? Colors.green : Colors.red,
+    );
+    tool.paintAngle(
+      PoseLandmarkType.rightHip,
+      angleRightHip,
+      validationRightHip ? Colors.green : Colors.red,
+    );
+    final wrongPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.0
+      ..color = Colors.redAccent;
+    final rightPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.0
+      ..color = Colors.green;
+    final paint = rightPaint;
+
     //Draw arms
-    tool.paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftElbow, leftPaint);
-    tool.paintLine(PoseLandmarkType.leftElbow, PoseLandmarkType.leftWrist, leftPaint);
-    tool.paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightElbow, rightPaint);
-    tool.paintLine(PoseLandmarkType.rightElbow, PoseLandmarkType.rightWrist, rightPaint);
+    tool.paintLine(
+        PoseLandmarkType.leftShoulder, PoseLandmarkType.leftElbow, validationLeftShoulder ? paint : wrongPaint);
+    tool.paintLine(PoseLandmarkType.leftElbow, PoseLandmarkType.leftWrist, validationLeftShoulder ? paint : wrongPaint);
+    tool.paintLine(
+        PoseLandmarkType.rightShoulder, PoseLandmarkType.rightElbow, validationRightShoulder ? paint : wrongPaint);
+    tool.paintLine(
+        PoseLandmarkType.rightElbow, PoseLandmarkType.rightWrist, validationRightShoulder ? paint : wrongPaint);
 
     //Draw Body
-    tool.paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftHip, leftPaint);
-    tool.paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip, rightPaint);
-
-    final angle1 = tool.getAngle(PoseLandmarkType.leftElbow, PoseLandmarkType.leftShoulder, PoseLandmarkType.leftWrist);
-    final angle2 =
-        tool.getAngle(PoseLandmarkType.rightElbow, PoseLandmarkType.rightShoulder, PoseLandmarkType.rightWrist);
-
-    final validationAngle1 = (angle1 < 120 && angle1 > 30) || (angle1 > 240 && angle1 < 290);
-    final validationAngle2 = (angle2 > 30 && angle2 < 120) || (angle2 < 290 && angle2 > 240);
-
-    tool.paintAngle(PoseLandmarkType.leftElbow, angle1, validationAngle1 ? Colors.green : Colors.red);
-    tool.paintAngle(PoseLandmarkType.rightElbow, angle2, validationAngle2 ? Colors.green : Colors.red);
+    tool.paintLine(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftHip, paint);
+    tool.paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip, paint);
 
     //Draw legs
-    tool.paintLine(PoseLandmarkType.leftHip, PoseLandmarkType.leftKnee, leftPaint);
-    tool.paintLine(PoseLandmarkType.leftKnee, PoseLandmarkType.leftAnkle, leftPaint);
-    tool.paintLine(PoseLandmarkType.rightHip, PoseLandmarkType.rightKnee, rightPaint);
-    tool.paintLine(PoseLandmarkType.rightKnee, PoseLandmarkType.rightAnkle, rightPaint);
+    tool.paintLine(PoseLandmarkType.leftHip, PoseLandmarkType.leftKnee, validationLeftHip ? paint : wrongPaint);
+    tool.paintLine(PoseLandmarkType.leftKnee, PoseLandmarkType.leftAnkle, validationLeftHip ? paint : wrongPaint);
+    tool.paintLine(PoseLandmarkType.rightHip, PoseLandmarkType.rightKnee, validationRightHip ? paint : wrongPaint);
+    tool.paintLine(PoseLandmarkType.rightKnee, PoseLandmarkType.rightAnkle, validationRightHip ? paint : wrongPaint);
 
-    tool.paintDescription([' \n${angle1.toStringAsFixed(2)}', ' \n${angle2.toStringAsFixed(2)}']);
-
-    return '';
+    tool.paintDescription([
+      ' \n Resultado: $value',
+      ' \n Mirando: ${direction ? 'Derecha' : 'Izquierda'}',
+      ' \n Brazo izquierdo: ${angleLeftShoulder.toStringAsFixed(2)}',
+      ' \n Brazo derecho: ${angleRightShoulder.toStringAsFixed(2)}',
+      ' \n Costado izquierdo: ${angleLeftHip.toStringAsFixed(2)}',
+      ' \n Costado derecho: ${angleRightHip.toStringAsFixed(2)}',
+    ]);
+    return value;
   },
 );

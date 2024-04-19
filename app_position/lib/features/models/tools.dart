@@ -12,6 +12,7 @@ class ExerciseTools {
   final InputImageRotation rotation;
   final CameraLensDirection cameraLensDirection;
   final Canvas canvas;
+  final bool showDescription;
 
   const ExerciseTools(
     this.canvas, {
@@ -20,6 +21,7 @@ class ExerciseTools {
     required this.imageSize,
     required this.rotation,
     required this.cameraLensDirection,
+    this.showDescription = true,
   });
 
   double getAngle(PoseLandmarkType middle, PoseLandmarkType start, PoseLandmarkType end) {
@@ -48,6 +50,38 @@ class ExerciseTools {
       cameraLensDirection,
     );
     return calcularAnguloEntreTresPuntos(startPoint, middlePoint, endPoint);
+  }
+
+  double calculateAngle(PoseLandmarkType middle, PoseLandmarkType start, PoseLandmarkType end) {
+    final PoseLandmark pointA = pose.landmarks[start]!;
+    final PoseLandmark pointB = pose.landmarks[middle]!;
+    final PoseLandmark pointC = pose.landmarks[end]!;
+    // Calcula los vectores AB y BC
+    double ABx = pointB.x - pointA.x;
+    double ABy = pointB.y - pointA.y;
+    double ABz = pointB.z - pointA.z;
+
+    double BCx = pointC.x - pointB.x;
+    double BCy = pointC.y - pointB.y;
+    double BCz = pointC.z - pointB.z;
+
+    // Calcula el producto escalar AB · BC
+    double dotProduct = ABx * BCx + ABy * BCy + ABz * BCz;
+
+    // Calcula las magnitudes de AB y BC
+    double magnitudeAB = sqrt(ABx * ABx + ABy * ABy + ABz * ABz);
+    double magnitudeBC = sqrt(BCx * BCx + BCy * BCy + BCz * BCz);
+
+    // Calcula el coseno del ángulo entre AB y BC
+    double cosAngle = dotProduct / (magnitudeAB * magnitudeBC);
+
+    // Calcula el ángulo en radianes
+    double angleRad = acos(cosAngle);
+
+    // Convierte el ángulo a grados
+    double angleDeg = angleRad * (180 / pi);
+
+    return angleDeg;
   }
 
   bool isLookingRight() {
@@ -119,6 +153,7 @@ class ExerciseTools {
   }
 
   void paintAngle(PoseLandmarkType point, double angle, [Color color = Colors.green]) {
+    if (!showDescription) return;
     final PoseLandmark joint1 = pose.landmarks[point]!;
     final middlePoint = poseOffset(
       joint1,
@@ -167,6 +202,7 @@ class ExerciseTools {
   }
 
   void paintDescription([List<String> paintDescription = const ['Without description']]) {
+    if (!showDescription) return;
     TextPainter tp2 = TextPainter(
       text: TextSpan(
         text: 'Descripción:',
@@ -185,6 +221,6 @@ class ExerciseTools {
       textDirection: TextDirection.ltr,
     );
     tp2.layout();
-    tp2.paint(canvas, Offset(80, 124));
+    tp2.paint(canvas, const Offset(80, 124));
   }
 }
