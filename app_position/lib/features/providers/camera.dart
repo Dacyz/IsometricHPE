@@ -163,7 +163,8 @@ class Camera extends ChangeNotifier with Settings, BD {
   }
 
   void export(BuildContext context) async {
-    final newId = await putRoutine(detail: currentPoseList, date: DateTime.now(), duration: _lastDuration.toDuration);
+    final newPoses = currentPoseList.toList(growable: false);
+    final newId = await putRoutine(detail: newPoses, date: DateTime.now(), duration: _lastDuration.toDuration);
     if (newId != -1) {
       currentPoseList.clear();
     }
