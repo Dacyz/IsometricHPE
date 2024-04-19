@@ -28,6 +28,18 @@ dev_dependencies:
   flutter_lints: ^2.0.0
   hive_generator: ^2.0.1
   build_runner: ^2.4.9
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  ios: "Icon-App"
+  android: true
+  image_path: "assets/image/ic_launcher.png"
+  adaptive_icon_background: "assets/image/ic_launcher_background.png" # only available for Android 8.0 devices and above
+  adaptive_icon_foreground: "assets/image/ic_launcher_foreground.png" # only available for Android 8.0 devices and above
+  adaptive_icon_monochrome: "assets/image/ic_launcher_monochrome.png" # only available for Android 13 devices and above
+  min_sdk_android: 21
+  remove_alpha_ios: true
+  background_color_ios: "#ffffff"
 
 flutter:
   uses-material-design: true

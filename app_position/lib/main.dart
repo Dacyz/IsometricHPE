@@ -31,7 +31,7 @@ class MainApp extends StatelessWidget {
         return __;
       },
       child: MaterialApp(
-        title: 'App Position',
+        title: 'IsometricHPE',
         routes: AppConstants.routes,
         theme: ThemeData.light().copyWith(
           floatingActionButtonTheme: FloatingActionButtonThemeData(
