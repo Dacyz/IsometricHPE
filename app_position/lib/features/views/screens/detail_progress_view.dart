@@ -1,9 +1,6 @@
-import 'package:app_position/features/models/pose_detail/pose_detail.dart';
 import 'package:app_position/features/models/routine/routine.dart';
 import 'package:app_position/features/views/widgets/pose_painter.dart';
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
 class DetailProgressView extends StatefulWidget {
   const DetailProgressView({super.key, required this.routine});
@@ -102,34 +99,6 @@ class _DetailProgressViewState extends State<DetailProgressView> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class PosePreview extends StatelessWidget {
-  const PosePreview({
-    super.key,
-    required this.size,
-    required this.detail,
-  });
-
-  final Size size;
-  final PoseDetail detail;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black,
-      child: CustomPaint(
-        size: size,
-        painter: PosePainter(
-          detail.pose.mlkpPose,
-          size,
-          InputImageRotation.rotation90deg,
-          CameraLensDirection.back,
-          detail.exercise.toExercise(),
-        ),
       ),
     );
   }

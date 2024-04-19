@@ -1,5 +1,6 @@
 import 'package:app_position/features/providers/camera.dart';
 import 'package:app_position/features/views/screens/detail_progress_view.dart';
+import 'package:app_position/features/views/widgets/pose_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
