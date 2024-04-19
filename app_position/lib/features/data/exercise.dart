@@ -274,7 +274,7 @@ final Exercise sideRightBridge = Exercise(
       ' \n Angulo cadera: ${angleFloor.toStringAsFixed(2)}',
       ' \n Costado derecho: ${angleHip.toStringAsFixed(2)}',
     ]);
-    return '';
+    return value;
   },
 );
 

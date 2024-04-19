@@ -10,19 +10,24 @@ class PosePainter extends CustomPainter {
     this.imageSize,
     this.rotation,
     this.cameraLensDirection,
-    this.currentExercise,
-  );
+    this.currentExercise, {
+    this.validator,
+  });
 
   final Pose poses;
   final Size imageSize;
   final InputImageRotation rotation;
   final CameraLensDirection cameraLensDirection;
   final Exercise currentExercise;
+  final Function(String? value)? validator;
 
   @override
   void paint(Canvas canvas, Size size) {
     if (currentExercise.toPaint != null) {
-      currentExercise.toPaint!(canvas, size, poses, imageSize, rotation, cameraLensDirection);
+      final validation = currentExercise.toPaint!(canvas, size, poses, imageSize, rotation, cameraLensDirection);
+      if (validation.isNotEmpty && validator != null) {
+        validator!(validation);
+      }
     }
   }
 

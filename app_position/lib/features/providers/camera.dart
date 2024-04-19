@@ -26,6 +26,7 @@ class Camera extends ChangeNotifier with Settings, BD {
 
   void _initTTS() async {
     final voiceList = await flutterTts.getVoices;
+    flutterTts.awaitSpeakCompletion(true);
     try {
       final voicesList = List<Map>.from(voiceList);
       for (var element in voicesList) {
@@ -89,6 +90,7 @@ class Camera extends ChangeNotifier with Settings, BD {
   bool isPaused = false;
   bool showExportButton = false;
   int millisecondsElapsed = 0;
+  int errorCounter = 0;
   int _lastDuration = 0;
   Timer? timer;
 
@@ -222,6 +224,15 @@ class Camera extends ChangeNotifier with Settings, BD {
         inputImage.metadata!.rotation,
         initialCameraLensDirection,
         currentExercise,
+        validator: (value) {
+          if (isTimerRunning && !isPaused && millisecondsElapsed % 25 == 0) {
+            errorCounter++;
+            debugPrint(errorCounter.toString());
+            if (errorCounter % 25 == 0) {
+              talk(value, false);
+            }
+          }
+        },
       ),
     );
   }

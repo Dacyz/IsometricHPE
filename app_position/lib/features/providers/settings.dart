@@ -10,6 +10,14 @@ mixin Settings on ChangeNotifier {
   final List<String> localeVoices = [];
   final List<Map> availableVoices = [];
 
+  bool _isSpeaking = false;
+
+  bool get isSpeaking => !_isSpeaking;
+  set isSpeaking (bool value) {
+    _isSpeaking = value;
+    notifyListeners();
+  }
+
   final textToSpetch = TextEditingController(text: 'Mensaje de prueba');
 
   int get indexVoice => _indexVoice;
@@ -56,9 +64,12 @@ mixin Settings on ChangeNotifier {
     flutterTts.speak(textToSpetch.text);
   }
 
-  void talk([String? text]) {
+  void talk([String? text, bool priority = true]) async {
+    if (_isSpeaking && !priority) return;
     try {
-      flutterTts.speak(text ?? textToSpetch.text);
+      _isSpeaking = true;
+      await flutterTts.speak(text ?? textToSpetch.text);
+      _isSpeaking = false;
     } catch (e) {
       debugPrint(e.toString());
     }
