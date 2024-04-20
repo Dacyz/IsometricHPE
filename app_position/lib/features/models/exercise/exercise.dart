@@ -58,7 +58,7 @@ class Exercise extends ExerciseModel {
     return Exercise(
       name: 'Descanso',
       type: ExerciseType.rest,
-      time: const Duration(seconds: 10),
+      time: const Duration(seconds: 20),
       toPaint: (canvas, size, pose, imageSize, rotation, cameraLensDirection) => '',
     );
   }

@@ -14,7 +14,7 @@ final List<Exercise> data = [
 
 final Exercise lowPlankIsometric = Exercise(
   name: 'Plancha',
-  time: const Duration(seconds: 60),
+  time: const Duration(seconds: 45),
   toPaint: (canvas, size, pose, imageSize, rotation, cameraLensDirection) {
     final leftPaint = Paint()
       ..style = PaintingStyle.stroke
@@ -280,7 +280,7 @@ final Exercise sideRightBridge = Exercise(
 
 final Exercise birdDogLeft = Exercise(
   name: 'Bird dog left',
-  time: const Duration(seconds: 30),
+  time: const Duration(seconds: 45),
   toPaint: (canvas, size, pose, imageSize, rotation, cameraLensDirection) {
     final tool = ExerciseTools(
       canvas,
@@ -415,7 +415,7 @@ final Exercise birdDogLeft = Exercise(
 
 final Exercise birdDogRight = Exercise(
   name: 'Bird dog right',
-  time: const Duration(seconds: 30),
+  time: const Duration(seconds: 45),
   toPaint: (canvas, size, pose, imageSize, rotation, cameraLensDirection) {
     final tool = ExerciseTools(
       canvas,
@@ -553,7 +553,7 @@ final Exercise birdDogRight = Exercise(
 
 final Exercise bridge = Exercise(
   name: 'Puente',
-  time: const Duration(seconds: 30),
+  time: const Duration(seconds: 60),
   toPaint: (canvas, size, pose, imageSize, rotation, cameraLensDirection) {
     final tool = ExerciseTools(
       canvas,
