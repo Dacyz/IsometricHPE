@@ -77,7 +77,7 @@ final Exercise lowPlankIsometric = Exercise(
       if (diff.abs() >= 10) {
         value = 'Tu cuerpo no esta recto';
       } else {
-        final caderaPosition = direction ? angle0 < 260 : angle0 >= 85;
+        final caderaPosition = direction ? angle0 >= 85 : angle0 < 260;
         if (caderaPosition) {
           value = 'Eleva tu cadera';
         } else {
@@ -108,8 +108,8 @@ final Exercise lowPlankIsometric = Exercise(
   },
 );
 
-final Exercise sideLeftBridge = Exercise(
-  name: 'Puente lateral izquierdo',
+final Exercise sideRightBridge = Exercise(
+  name: 'Lateral derecho',
   time: const Duration(seconds: 30),
   toPaint: (canvas, size, pose, imageSize, rotation, cameraLensDirection) {
     final tool = ExerciseTools(
@@ -194,8 +194,8 @@ final Exercise sideLeftBridge = Exercise(
   },
 );
 
-final Exercise sideRightBridge = Exercise(
-  name: 'Puente lateral derecho',
+final Exercise sideLeftBridge = Exercise(
+  name: 'Lateral izquierdo',
   time: const Duration(seconds: 30),
   toPaint: (canvas, size, pose, imageSize, rotation, cameraLensDirection) {
     final tool = ExerciseTools(
@@ -318,41 +318,41 @@ final Exercise birdDogLeft = Exercise(
     final validationRightHip =
         direction ? angleRightHip > 170 && angleRightHip < 190 : angleRightHip > 170 && angleRightHip < 200;
     if (direction) {
-      if (!validationLeftShoulder) {
-        if (angleLeftShoulder > 30) {
-          value = 'Levanta el brazo izquierdo';
+      if (!validationRightShoulder) {
+        if (angleRightShoulder > 30) {
+          value = 'Levanta el brazo derecho';
         } else {
-          value = 'Baja el brazo izquierdo';
+          value = 'Baja el brazo derecho';
         }
       }
-      if (!validationRightHip) {
-        if (angleRightHip < 190) {
-          value = 'Baja la pierna derecha';
+      if (!validationLeftHip) {
+        if (angleLeftHip < 190) {
+          value = 'Baja la pierna izquierda';
         } else {
-          value = 'Levanta la pierna derecha';
+          value = 'Levanta la pierna izquierda';
         }
       }
     } else {
-      if (!validationLeftShoulder) {
-        if (angleLeftShoulder > 310) {
-          value = 'Baja el brazo izquierdo';
+      if (!validationRightShoulder) {
+        if (angleRightShoulder > 310) {
+          value = 'Baja el brazo derecho';
         } else {
-          value = 'Levanta el brazo izquierdo';
+          value = 'Levanta el brazo derecho';
         }
       }
-      if (!validationRightHip) {
-        if (angleRightHip < 170) {
-          value = 'Baja la pierna derecha';
+      if (!validationLeftHip) {
+        if (angleLeftHip < 170) {
+          value = 'Baja la pierna izquierda';
         } else {
-          value = 'Levanta la pierna derecha';
+          value = 'Levanta la pierna izquierda';
         }
       }
     }
-    if (!validationLeftHip) {
-      value = 'Tu pierna izquierda debe estar recta';
+    if (!validationRightHip) {
+      value = 'Tu pierna derecha debe estar recta';
     }
-    if (!validationRightShoulder) {
-      value = 'Tu brazo derecho debe estar recto';
+    if (!validationLeftShoulder) {
+      value = 'Tu brazo izquierdo debe estar recto';
     }
 
     tool.paintAngle(
