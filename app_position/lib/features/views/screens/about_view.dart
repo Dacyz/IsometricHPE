@@ -1,4 +1,6 @@
+import 'package:app_position/features/providers/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AboutView extends StatefulWidget {
   const AboutView({super.key});
@@ -11,17 +13,18 @@ class AboutView extends StatefulWidget {
 class _AboutViewState extends State<AboutView> {
   @override
   Widget build(BuildContext context) {
+    final settings = Provider.of<Camera>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Información'),
+        title: const Text('Información'),
       ),
-      body: const SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(24),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
+              const Text(
                 'Somos un grupo de desarrolladores que buscan lograr su titulo universitario mediante esta aplicación móvil',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -30,8 +33,8 @@ class _AboutViewState extends State<AboutView> {
                   fontWeight: FontWeight.normal,
                 ),
               ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const Text(
                 'Acerca de la aplicación',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -39,8 +42,8 @@ class _AboutViewState extends State<AboutView> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(height: 8),
-              Row(
+              const SizedBox(height: 8),
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
@@ -59,32 +62,52 @@ class _AboutViewState extends State<AboutView> {
                   ),
                 ],
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Versión:',
+                  const Text(
+                    'Nombre de versión:',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.normal,
                     ),
                   ),
                   Text(
-                    'v1.0.0',
-                    style: TextStyle(
+                    settings.versionName,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.normal,
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  const Text(
+                    'Código de versión:',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
                   Text(
-                    'Min versión:',
+                    settings.versionCode,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Min. versión:',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.normal,
@@ -99,34 +122,60 @@ class _AboutViewState extends State<AboutView> {
                   ),
                 ],
               ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const Text(
                 'Colaboradores',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(height: 8),
-              Text(
-                '\t\t- Diego Arturo Yangua Merino',
-                textAlign: TextAlign.start,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.normal,
-                ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Image.asset('assets/image/collaborators/diego_yangua.jpg'),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Diego Yangua',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Image.asset('assets/image/collaborators/olga_zapata.jpg'),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Olga Zapata',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(height: 8),
-              Text(
-                '\t\t- Olga Isabel Zapata Culquicondor',
-                textAlign: TextAlign.start,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const Text(
                 'Agradecimientos',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -134,15 +183,74 @@ class _AboutViewState extends State<AboutView> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(height: 8),
-              Text(
-                '',
-                textAlign: TextAlign.start,
+              const SizedBox(height: 8),
+              const Text(
+                'Agradezco a todas aquellas personas que apoyaron directa o indirectamente al conocimiento necesario para la realización de este proyecto, así como a mi nuestras bebes: Oso, Tini, Michulita, Fruna y Naranjo que nos dieron el cariño suficiente para terminar este proyecto ❤',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.normal,
                 ),
               ),
+              // const SizedBox(height: 16),
+              // const Text(
+              //   'Apoyo externo',
+              //   textAlign: TextAlign.center,
+              //   style: TextStyle(
+              //     fontSize: 20,
+              //     fontWeight: FontWeight.w500,
+              //   ),
+              // ),
+              // const SizedBox(height: 8),
+              // Row(
+              //   children: [
+              //     Expanded(
+              //       child: Column(
+              //         children: [
+              //           ClipRRect(
+              //             borderRadius: BorderRadius.circular(16),
+              //             child: Image.asset(
+              //               'assets/image/logos/ucv.png',
+              //               height: 100,
+              //             ),
+              //           ),
+              //           const SizedBox(height: 8),
+              //           const Text(
+              //             'Universidad Cesar Vallejo',
+              //             textAlign: TextAlign.center,
+              //             style: TextStyle(
+              //               fontSize: 16,
+              //               fontWeight: FontWeight.normal,
+              //             ),
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //     const SizedBox(width: 16),
+              //     Expanded(
+              //       child: Column(
+              //         children: [
+              //           ClipRRect(
+              //             borderRadius: BorderRadius.circular(16),
+              //             child: Image.asset(
+              //               'assets/image/logos/fractal.png',
+              //               height: 100,
+              //             ),
+              //           ),
+              //           const SizedBox(height: 8),
+              //           const Text(
+              //             'FRACTAL',
+              //             textAlign: TextAlign.center,
+              //             style: TextStyle(
+              //               fontSize: 16,
+              //               fontWeight: FontWeight.normal,
+              //             ),
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         ),

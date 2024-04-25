@@ -1,7 +1,7 @@
 name: app_position
 description: "A new Flutter project."
 publish_to: "none"
-version: 0.1.0
+version: 0.1.0+2
 
 environment:
   sdk: ">=3.2.3 <4.0.0"
@@ -16,6 +16,7 @@ dependencies:
   wakelock: ^0.6.2 # WakeLock
   flutter_tts: ^3.8.5 # TTS (Text to Speech)
   provider: ^6.1.1 # Provider for state management
+  package_info_plus: ^3.1.2
   flutter_svg: ^2.0.2
   path: any
   duration_picker: ^1.1.1
@@ -48,3 +49,5 @@ flutter:
     - assets/fonts/
     - assets/image/
     - assets/svg/
+    - assets/image/collaborators/
+    - assets/image/logos/

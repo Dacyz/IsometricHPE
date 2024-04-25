@@ -11,6 +11,7 @@ import 'package:app_position/features/providers/hive.dart';
 import 'package:app_position/features/providers/settings.dart';
 import 'package:app_position/features/views/widgets/pose_painter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wakelock/wakelock.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,17 @@ class Camera extends ChangeNotifier with Settings, BD {
     _initTTS();
     initExercises();
     _initBD();
+    _initDevice();
+  }
+
+  late final String versionName;
+  late final String versionCode;
+
+  void _initDevice() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    versionName = packageInfo.version;
+    versionCode = packageInfo.buildNumber;
+    print(packageInfo);
   }
 
   void _initTTS() async {

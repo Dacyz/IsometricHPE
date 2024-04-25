@@ -21,7 +21,7 @@ class ExerciseTools {
     required this.imageSize,
     required this.rotation,
     required this.cameraLensDirection,
-    this.showDescription = true,
+    this.showDescription = false,
   });
 
   double getAngle(PoseLandmarkType middle, PoseLandmarkType start, PoseLandmarkType end) {
