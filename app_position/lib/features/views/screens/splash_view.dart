@@ -1,4 +1,6 @@
+import 'package:app_position/core/const.dart';
 import 'package:app_position/features/providers/camera.dart';
+import 'package:app_position/features/views/screens/about_view.dart';
 import 'package:app_position/features/views/screens/pose_detector_view.dart';
 import 'package:app_position/features/views/screens/progress_view.dart';
 import 'package:app_position/features/views/screens/settings_view.dart';
@@ -15,40 +17,76 @@ class SplashView extends StatelessWidget {
   Widget build(BuildContext context) {
     Provider.of<Camera>(context, listen: false);
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Icono grande
-            Expanded(
-              child: SvgPicture.asset(
-                'assets/svg/splash_image.svg',
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.bottomCenter,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Icono grande
+              Expanded(
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: SvgPicture.asset(
+                        'assets/svg/splash_image.svg',
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.bottomCenter,
+                      ),
+                    ),
+                    Positioned(
+                      height: 45,
+                      right: 0,
+                      child: FloatingActionButton(
+                        heroTag: "btnSplash",
+                        elevation: 0,
+                        shape: CircleBorder(side: BorderSide(color: AppConstants.colors.primary)),
+                        onPressed: () => Navigator.pushNamed(context, AboutView.route),
+                        highlightElevation: 0,
+                        backgroundColor: Colors.transparent,
+                        child: Text(
+                          'i',
+                          style: TextStyle(
+                            color: AppConstants.colors.primary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 20.0),
-            const Text('App Position',
-                textAlign: TextAlign.center, style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.w500)),
-            const SizedBox(height: 20.0),
-            // Botones
-            CustomElevatedButton(
-              title: 'Ejercitarse',
-              onPressed: () => Navigator.pushNamed(context, PoseDetectorView.route),
-            ),
-            const SizedBox(height: 10.0),
-            CustomElevatedButton.outlined(
-              title: 'Progreso',
-              onPressed: () => Navigator.pushNamed(context, ProgressView.route),
-            ),
-            const SizedBox(height: 10.0),
-            CustomElevatedButton.outlined(
-              title: 'Configuración',
-              onPressed: () => Navigator.pushNamed(context, SettingsView.route),
-            ),
-          ],
+              const SizedBox(height: 20.0),
+              Text(
+                'IsometricHPE',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppConstants.colors.primary,
+                  fontSize: 30.0,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 20.0),
+              // Botones
+              CustomElevatedButton(
+                title: 'Ejercitarse',
+                onPressed: () => Navigator.pushNamed(context, PoseDetectorView.route),
+              ),
+              const SizedBox(height: 10.0),
+              CustomElevatedButton.outlined(
+                title: 'Progreso',
+                onPressed: () => Navigator.pushNamed(context, ProgressView.route),
+              ),
+              const SizedBox(height: 10.0),
+              CustomElevatedButton.outlined(
+                title: 'Configuración',
+                onPressed: () => Navigator.pushNamed(context, SettingsView.route),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:app_position/features/views/screens/about_view.dart';
 import 'package:app_position/features/views/screens/pose_detector_view.dart';
 import 'package:app_position/features/views/screens/progress_view.dart';
 import 'package:app_position/features/views/screens/settings_view.dart';
@@ -11,6 +12,7 @@ class AppConstants {
     PoseDetectorView.route: (_) => const PoseDetectorView(),
     SettingsView.route: (_) => const SettingsView(),
     ProgressView.route: (_) => const ProgressView(),
+    AboutView.route: (_) => const AboutView()
   };
 
   static const initialRoute = SplashView.route;
