@@ -6,5 +6,7 @@
         "olga",
         "wakelock",
         "yangua"
-    ]
+    ],
+    "dart.flutterSdkPath": "C:\\Users\\DacyG\\.puro\\envs\\fractal_env\\flutter",
+    "dart.sdkPath": "C:\\Users\\DacyG\\.puro\\envs\\fractal_env\\flutter\\bin\\cache\\dart-sdk"
 }
