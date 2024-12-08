@@ -1,24 +1,29 @@
 import 'package:app_position/core/const.dart';
 import 'package:app_position/features/models/exercise/exercise.dart';
-import 'package:app_position/features/providers/camera.dart';
+import 'package:app_position/features/single_exercise.dart/presentation/single_exercise.dart';
 import 'package:camera/camera.dart';
 import 'package:duration_picker/duration_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class CameraView extends StatefulWidget {
-  const CameraView({Key? key}) : super(key: key);
+class SingleExerciseView extends StatefulWidget {
+  const SingleExerciseView({
+    Key? key,
+    required this.exercise,
+  }) : super(key: key);
+
+  final Exercise exercise;
 
   @override
-  State<CameraView> createState() => _CameraViewState();
+  State<SingleExerciseView> createState() => _SingleExerciseViewState();
 }
 
-class _CameraViewState extends State<CameraView> {
-  late Camera camera;
+class _SingleExerciseViewState extends State<SingleExerciseView> {
+  late ExerciseRepository camera;
 
   @override
   void initState() {
-    camera = Provider.of<Camera>(context, listen: false);
+    camera = Provider.of<ExerciseRepository>(context, listen: false);
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => camera.initialize());
   }
@@ -51,40 +56,20 @@ class _CameraViewState extends State<CameraView> {
           width: double.infinity,
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(32),
-              topRight: Radius.circular(32),
-            ),
+                topLeft: Radius.circular(32), topRight: Radius.circular(32)),
             color: Colors.white,
           ),
         ),
       );
   Widget _switchExercise() {
-    final list = camera.listExercises;
+    final list = camera.currentExercise;
     return Positioned(
       bottom: 32,
       left: 0,
       right: 0,
       child: SizedBox(
         height: 86,
-        child: ListView.separated(
-          padding: const EdgeInsets.all(16),
-          physics: const BouncingScrollPhysics(),
-          clipBehavior: Clip.none,
-          scrollDirection: Axis.horizontal,
-          itemBuilder: (context, index) => GestureDetector(
-            onTap: camera.isTimerRunning
-                ? null
-                : list[index] == camera.currentExercise
-                    ? () => _editDuration(list[index])
-                    : () => camera.setExercise(list[index]),
-            onLongPress: camera.isTimerRunning || list[index].isDone
-                ? null
-                : () => _editDuration(list[index]),
-            child: _exerciseButton(list[index]),
-          ),
-          separatorBuilder: (context, index) => const SizedBox(width: 4),
-          itemCount: list.length,
-        ),
+        child: _exerciseButton(list),
       ),
     );
   }
@@ -164,7 +149,7 @@ class _CameraViewState extends State<CameraView> {
   }
 
   Widget _liveFeedBody() {
-    final camera = Provider.of<Camera>(context);
+    final camera = Provider.of<ExerciseRepository>(context);
     if (camera.cameras.isEmpty) return const SizedBox();
     if (camera.controller == null) return const SizedBox();
     if (camera.controller?.value.isInitialized == false) {

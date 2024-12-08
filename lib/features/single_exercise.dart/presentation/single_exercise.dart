@@ -1,107 +1,27 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:app_position/core/const.dart';
-import 'package:app_position/core/extensions/integer.dart';
-import 'package:app_position/features/data/exercise.dart';
 import 'package:app_position/features/models/exercise/exercise.dart';
-import 'package:app_position/features/models/pose_detail/pose.dart' as kit;
-import 'package:app_position/features/models/pose_detail/pose_detail.dart';
-import 'package:app_position/features/models/routine/routine.dart';
-import 'package:app_position/features/providers/hive.dart';
-import 'package:app_position/features/providers/settings.dart';
 import 'package:app_position/features/views/widgets/pose_painter.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:app_position/features/voice/presentation/voice_repository.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
-class Camera extends ChangeNotifier with Settings, BD {
-  Camera() {
-    _initTTS();
-    initExercises();
-    _initBD();
-    _initDevice();
-  }
+class ExerciseRepository extends ChangeNotifier {
+  final VoiceRepository voiceRepository;
+  final Exercise currentExercise;
+  ExerciseRepository(
+    this.currentExercise,
+    this.voiceRepository, {
+    this.initialCameraLensDirection = CameraLensDirection.front,
+  });
 
-  late final String versionName;
-  late final String versionCode;
-
-  void _initDevice() async {
-    try {
-      final packageInfo = await PackageInfo.fromPlatform();
-      versionName = packageInfo.version;
-      versionCode = packageInfo.buildNumber;
-    } catch (e) {
-      versionName = 'Unknown';
-      versionCode = 'Unknown';
-      debugPrint(e.toString());
-    }
-  }
-
-  void _initTTS() async {
-    final voiceList = await flutterTts.getVoices;
-    flutterTts.awaitSpeakCompletion(true);
-    try {
-      final voicesList = List<Map>.from(voiceList);
-      for (var element in voicesList) {
-        final e = element['locale'] as String;
-        // if (e.contains('es') || e.contains('en')) {
-        if (e.contains('es')) {
-          availableVoices.add(element);
-          if (!localeVoices.contains(e)) {
-            localeVoices.add(e);
-          }
-        }
-      }
-      notifyListeners();
-    } catch (ex) {
-      debugPrint(ex.toString());
-    }
-  }
-
-  void _initBD() async {
-    try {
-      // Open your box. Optional: Give it a type.
-      Hive.registerAdapter(RoutineAdapter());
-      Hive.registerAdapter(PoseDetailAdapter());
-      Hive.registerAdapter(kit.PoseAdapter());
-      Hive.registerAdapter(kit.PoseLandmarkAdapter());
-      Hive.registerAdapter(ExerciseModelAdapter());
-      Hive.registerAdapter(ExerciseTypeAdapter());
-      exerciseBox = await Hive.openBox<Routine>(AppConstants.dbBox);
-    } catch (ex) {
-      debugPrint('initBD ${ex.toString()}');
-    }
-  }
-
-  void initExercises() {
-    List<Exercise> exercisesList = [];
-    for (var i = 0; i < listExercises.length; i++) {
-      exercisesList.add(listExercises[i]);
-      if (i != listExercises.length - 1) {
-        exercisesList.insert(exercisesList.length, Exercise.rest());
-      }
-    }
-    listExercises = exercisesList;
-  }
-
-  var initialCameraLensDirection = CameraLensDirection.back;
+  final CameraLensDirection initialCameraLensDirection;
   List<CameraDescription> cameras = [];
-  List<Exercise> listExercises = data;
 
-  PoseDetails currentPoseList = [];
-  late Exercise currentExercise = listExercises.first;
-
-  void setExercise(Exercise exercise) {
-    currentExercise = exercise;
-    notifyListeners();
-  }
-
-  int get fullTime =>
-      listExercises.reduce((value, element) => element.copyWith(time: value.time + element.time)).time.inSeconds;
+  int get fullTime => currentExercise.time.inSeconds;
   int get totalTime => fullTime * 1000;
   String get time =>
       '${(fullMillisecondsElapsed ~/ 60000).toString().padLeft(2, '0')}:${((fullMillisecondsElapsed ~/ 1000) % 60).toString().padLeft(2, '0')}.${((fullMillisecondsElapsed % 1000) ~/ 10).toString().padLeft(2, '0')}';
@@ -111,43 +31,24 @@ class Camera extends ChangeNotifier with Settings, BD {
 
   bool isTimerRunning = false;
   bool isPaused = false;
-  bool showExportButton = false;
   int millisecondsElapsed = 0;
   int errorCounter = 0;
-  int _lastDuration = 0;
   Timer? timer;
 
-  void _startTimer([Exercise? currentExercise]) {
-    final exercise = currentExercise ?? this.currentExercise;
+  void _startTimer() {
+    final exercise = currentExercise;
     isTimerRunning = true;
-    talk(exercise.name);
-    bool isBecomingOtherExercise = false;
+    voiceRepository.talk(exercise.name);
     timer = Timer.periodic(
-      const Duration(milliseconds: 10),
+      const Duration(milliseconds: 50),
       (Timer t) {
         if (isPaused) return;
-        millisecondsElapsed += 10;
+        millisecondsElapsed += 50;
         exercise.millisecondsElapsed = millisecondsElapsed;
-        if (millisecondsElapsed >= exercise.time.inMilliseconds - 3200 && !isBecomingOtherExercise) {
-          isBecomingOtherExercise = true;
-          if (exercise.type == ExerciseType.rest) {
-            talk('Prepárate');
-          } else {
-            talk('3 segundos');
-          }
-        }
         if (millisecondsElapsed >= exercise.time.inMilliseconds) {
-          _lastDuration = millisecondsElapsed;
           _stopTimer();
-          final id = listExercises.indexOf(exercise);
           millisecondsElapsed = 0;
           exercise.isDone = true;
-          if (id != -1 && id < listExercises.length - 1) {
-            this.currentExercise = listExercises[id + 1];
-            _startTimer(this.currentExercise);
-            return;
-          }
-          showExportButton = true;
         }
         notifyListeners();
       },
@@ -155,12 +56,9 @@ class Camera extends ChangeNotifier with Settings, BD {
   }
 
   void start() async {
-    for (var element in listExercises) {
-      element.isDone = false;
-      element.millisecondsElapsed = 0;
-    }
+    currentExercise.isDone = false;
+    currentExercise.millisecondsElapsed = 0;
     millisecondsElapsed = 0;
-    currentExercise = listExercises.first;
     _startTimer();
     isPaused = false;
     notifyListeners();
@@ -173,36 +71,16 @@ class Camera extends ChangeNotifier with Settings, BD {
   }
 
   void stop() {
-    _lastDuration = millisecondsElapsed;
-    for (var element in listExercises) {
-      element.isDone = false;
-      element.millisecondsElapsed = 0;
-    }
+    currentExercise.isDone = false;
+    currentExercise.millisecondsElapsed = 0;
     millisecondsElapsed = 0;
-    currentExercise = listExercises.first;
-    showExportButton = true;
     isPaused = false;
     _stopTimer();
   }
 
-  void export(BuildContext context) async {
-    final newPoses = currentPoseList.toList(growable: false);
-    final newId = await putRoutine(detail: newPoses, date: DateTime.now(), duration: _lastDuration.toDuration);
-    if (newId != -1) {
-      currentPoseList.clear();
-    }
-    Future.delayed(const Duration(seconds: 5), () {
-      showExportButton = false;
-      resetStatus();
-    });
-    notifyListeners();
-  }
-
-  double get exerciseProgress => millisecondsElapsed / currentExercise.time.inMilliseconds;
-  int get fullMillisecondsElapsed => listExercises
-      .reduce((value, element) =>
-          element.copyWith(millisecondsElapsed: value.millisecondsElapsed + element.millisecondsElapsed))
-      .millisecondsElapsed;
+  double get exerciseProgress =>
+      millisecondsElapsed / currentExercise.time.inMilliseconds;
+  int get fullMillisecondsElapsed => currentExercise.millisecondsElapsed;
   double get fullProgress => fullMillisecondsElapsed / totalTime;
 
   Future<void> initCameras() async {
@@ -211,7 +89,8 @@ class Camera extends ChangeNotifier with Settings, BD {
     }
   }
 
-  final PoseDetector _poseDetector = PoseDetector(options: PoseDetectorOptions(model: PoseDetectionModel.base));
+  final PoseDetector _poseDetector = PoseDetector(
+      options: PoseDetectorOptions(model: PoseDetectionModel.base));
 
   bool _canProcess = true;
   bool _isBusy = false;
@@ -234,12 +113,11 @@ class Camera extends ChangeNotifier with Settings, BD {
 
   Future<void> _paintLines(InputImage inputImage) async {
     final poses = await _poseDetector.processImage(inputImage);
-    if (poses.isEmpty || inputImage.metadata?.size == null || inputImage.metadata?.rotation == null) {
+    if (poses.isEmpty ||
+        inputImage.metadata?.size == null ||
+        inputImage.metadata?.rotation == null) {
       customPaint = null;
       return;
-    }
-    if (isTimerRunning && !isPaused && millisecondsElapsed % 25 == 0) {
-      currentPoseList.add(PoseDetail(kit.Pose.fromHive(poses.first), exercise: currentExercise));
     }
     customPaint = CustomPaint(
       painter: PosePainter(
@@ -253,7 +131,7 @@ class Camera extends ChangeNotifier with Settings, BD {
             errorCounter++;
             debugPrint(errorCounter.toString());
             if (errorCounter % 25 == 0) {
-              talk(value, false);
+              voiceRepository.talk(value, false);
             }
           }
         },
@@ -284,7 +162,9 @@ class Camera extends ChangeNotifier with Settings, BD {
       // Set to ResolutionPreset.high. Do NOT set it to ResolutionPreset.max because for some phones does NOT work.
       ResolutionPreset.low,
       enableAudio: false,
-      imageFormatGroup: Platform.isAndroid ? ImageFormatGroup.nv21 : ImageFormatGroup.bgra8888,
+      imageFormatGroup: Platform.isAndroid
+          ? ImageFormatGroup.nv21
+          : ImageFormatGroup.bgra8888,
     );
     if (controller == null) return;
     await controller?.initialize();
@@ -312,7 +192,7 @@ class Camera extends ChangeNotifier with Settings, BD {
   void pause([bool speak = true]) {
     isPaused = true;
     if (speak) {
-      talk('Pausado');
+      voiceRepository.talk('Pausado');
     }
     notifyListeners();
   }
@@ -320,7 +200,7 @@ class Camera extends ChangeNotifier with Settings, BD {
   void resume([bool speak = true]) {
     isPaused = false;
     if (speak) {
-      talk('Reanudado');
+      voiceRepository.talk('Reanudado');
     }
     notifyListeners();
   }
@@ -331,7 +211,7 @@ class Camera extends ChangeNotifier with Settings, BD {
       if (customPaint != null) {
         customPaint = null;
         notifyListeners();
-      } 
+      }
       return;
     }
     final inputImage = _inputImageFromCameraImage(image);
@@ -361,14 +241,16 @@ class Camera extends ChangeNotifier with Settings, BD {
     if (Platform.isIOS) {
       rotation = InputImageRotationValue.fromRawValue(sensorOrientation);
     } else if (Platform.isAndroid) {
-      var rotationCompensation = _orientations[controller!.value.deviceOrientation];
+      var rotationCompensation =
+          _orientations[controller!.value.deviceOrientation];
       if (rotationCompensation == null) return null;
       if (camera.lensDirection == CameraLensDirection.front) {
         // front-facing
         rotationCompensation = (sensorOrientation + rotationCompensation) % 360;
       } else {
         // back-facing
-        rotationCompensation = (sensorOrientation - rotationCompensation + 360) % 360;
+        rotationCompensation =
+            (sensorOrientation - rotationCompensation + 360) % 360;
       }
       rotation = InputImageRotationValue.fromRawValue(rotationCompensation);
       // print('rotationCompensation: $rotationCompensation');

@@ -1,5 +1,6 @@
 import 'package:app_position/core/const.dart';
 import 'package:app_position/features/providers/camera.dart';
+import 'package:app_position/features/voice/presentation/voice_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -25,11 +26,8 @@ class MainApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => Camera()),
+        ChangeNotifierProvider(create: (_) => VoiceRepository(), lazy: false,),
       ],
-      builder: (_, __) {
-        if (__ == null) return const SizedBox();
-        return __;
-      },
       child: MaterialApp(
         title: 'IsometricHPE',
         routes: AppConstants.routes,
