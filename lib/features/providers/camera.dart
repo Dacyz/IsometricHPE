@@ -12,7 +12,7 @@ import 'package:app_position/features/providers/settings.dart';
 import 'package:app_position/features/views/widgets/pose_painter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -30,10 +30,15 @@ class Camera extends ChangeNotifier with Settings, BD {
   late final String versionCode;
 
   void _initDevice() async {
-    final packageInfo = await PackageInfo.fromPlatform();
-    versionName = packageInfo.version;
-    versionCode = packageInfo.buildNumber;
-    print(packageInfo);
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      versionName = packageInfo.version;
+      versionCode = packageInfo.buildNumber;
+    } catch (e) {
+      versionName = 'Unknown';
+      versionCode = 'Unknown';
+      debugPrint(e.toString());
+    }
   }
 
   void _initTTS() async {
@@ -252,7 +257,7 @@ class Camera extends ChangeNotifier with Settings, BD {
 
   void initialize() async {
     await initCameras();
-    Wakelock.enable();
+    WakelockPlus.enable();
     for (var i = 0; i < cameras.length; i++) {
       if (cameras[i].lensDirection == initialCameraLensDirection) {
         cameraIndex = i;

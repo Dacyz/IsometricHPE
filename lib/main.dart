@@ -51,6 +51,7 @@ class MainApp extends StatelessWidget {
           ),
         ),
         darkTheme: ThemeData.dark(),
+        themeMode: ThemeMode.system,
         initialRoute: AppConstants.initialRoute,
         debugShowCheckedModeBanner: false,
       ),

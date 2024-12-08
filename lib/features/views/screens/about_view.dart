@@ -2,18 +2,13 @@ import 'package:app_position/features/providers/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class AboutView extends StatefulWidget {
+class AboutView extends StatelessWidget {
   const AboutView({super.key});
   static const String route = '/about';
 
   @override
-  State<AboutView> createState() => _AboutViewState();
-}
-
-class _AboutViewState extends State<AboutView> {
-  @override
   Widget build(BuildContext context) {
-    final settings = Provider.of<Camera>(context, listen: false);
+    final settings = context.read<Camera>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Información'),
@@ -123,58 +118,58 @@ class _AboutViewState extends State<AboutView> {
                 ],
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Colaboradores',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.asset('assets/image/collaborators/diego_yangua.jpg'),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Diego Yangua',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.asset('assets/image/collaborators/olga_zapata.jpg'),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Olga Zapata',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
+              // const Text(
+              //   'Colaboradores',
+              //   style: TextStyle(
+              //     fontSize: 20,
+              //     fontWeight: FontWeight.w500,
+              //   ),
+              // ),
+              // const SizedBox(height: 8),
+              // Row(
+              //   children: [
+              //     Expanded(
+              //       child: Column(
+              //         children: [
+              //           ClipRRect(
+              //             borderRadius: BorderRadius.circular(16),
+              //             child: Image.asset('assets/image/collaborators/diego_yangua.jpg'),
+              //           ),
+              //           const SizedBox(height: 8),
+              //           const Text(
+              //             'Diego Yangua',
+              //             textAlign: TextAlign.center,
+              //             style: TextStyle(
+              //               fontSize: 16,
+              //               fontWeight: FontWeight.normal,
+              //             ),
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //     const SizedBox(width: 16),
+              //     Expanded(
+              //       child: Column(
+              //         children: [
+              //           ClipRRect(
+              //             borderRadius: BorderRadius.circular(16),
+              //             child: Image.asset('assets/image/collaborators/olga_zapata.jpg'),
+              //           ),
+              //           const SizedBox(height: 8),
+              //           const Text(
+              //             'Olga Zapata',
+              //             textAlign: TextAlign.center,
+              //             style: TextStyle(
+              //               fontSize: 16,
+              //               fontWeight: FontWeight.normal,
+              //             ),
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              // const SizedBox(height: 16),
               const Text(
                 'Agradecimientos',
                 textAlign: TextAlign.center,
