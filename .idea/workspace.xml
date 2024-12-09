@@ -4,15 +4,34 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eed43e02-0c9c-4605-ad62-377cd6d579a8" name="Changes" comment="" />
+    <list default="true" id="eed43e02-0c9c-4605-ad62-377cd6d579a8" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/AppPosition.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/AppPosition.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/core/const.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/const.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/providers/camera.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/providers/camera.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/single_exercise.dart/presentation/camera_single_view.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/single_exercise.dart/presentation/single_exercise.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/single_exercise.dart/presentation/single_exercise.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/views/screens/settings_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/views/screens/settings_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/views/screens/splash_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/views/screens/splash_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/voice/presentation/voice_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/voice/presentation/voice_repository.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 2
+}]]></component>
   <component name="ProjectId" id="2amtTOXNE6H6wOPEqW8OdwgGwHW" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -23,13 +42,26 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "last_opened_file_path": "C:/Users/DELL/Documents/GitHub/AppPosition",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/DacyG/Documents/IsometricHPE",
     "project.structure.last.edited": "Problems",
     "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.2"
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "AndroidSdkUpdater",
+    "show.migrate.to.gradle.popup": "false"
   }
 }]]></component>
+  <component name="RunManager">
+    <configuration name="main.dart" type="FlutterRunConfigurationType" factoryName="Flutter">
+      <option name="filePath" value="$PROJECT_DIR$/lib/main.dart" />
+      <method v="2" />
+    </configuration>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">

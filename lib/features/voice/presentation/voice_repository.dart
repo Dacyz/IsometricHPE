@@ -8,10 +8,10 @@ class VoiceRepository with ChangeNotifier {
   final flutterTts = FlutterTts();
 
   void _initTTS() async {
-    final voiceList = await flutterTts.getVoices;
-    flutterTts.awaitSpeakCompletion(true);
-    flutterTts.awaitSynthCompletion(true);
     try {
+      final voiceList = await flutterTts.getVoices;
+      flutterTts.awaitSpeakCompletion(true);
+      flutterTts.awaitSynthCompletion(true);
       final voicesList = List<Map>.from(voiceList);
       for (var element in voicesList) {
         final e = element['locale'] as String;

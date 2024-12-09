@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:app_position/features/models/exercise/exercise.dart';
+import 'package:app_position/core/models/exercise_provider.dart';
 import 'package:app_position/features/views/widgets/pose_painter.dart';
 import 'package:app_position/features/voice/presentation/voice_repository.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -9,20 +10,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
-class ExerciseRepository extends ChangeNotifier {
+class SingleExerciseProvider extends ExerciseInterfaceProvider {
   final VoiceRepository voiceRepository;
   final Exercise currentExercise;
-  ExerciseRepository(
+  SingleExerciseProvider(
     this.currentExercise,
     this.voiceRepository, {
     this.initialCameraLensDirection = CameraLensDirection.front,
   });
+
+  @override
+  void dispose() {
+    stop();
+    super.dispose();
+  }
 
   final CameraLensDirection initialCameraLensDirection;
   List<CameraDescription> cameras = [];
 
   int get fullTime => currentExercise.time.inSeconds;
   int get totalTime => fullTime * 1000;
+  @override
   String get time =>
       '${(fullMillisecondsElapsed ~/ 60000).toString().padLeft(2, '0')}:${((fullMillisecondsElapsed ~/ 1000) % 60).toString().padLeft(2, '0')}.${((fullMillisecondsElapsed % 1000) ~/ 10).toString().padLeft(2, '0')}';
   CameraController? controller;
@@ -75,6 +83,8 @@ class ExerciseRepository extends ChangeNotifier {
     currentExercise.millisecondsElapsed = 0;
     millisecondsElapsed = 0;
     isPaused = false;
+    stopLiveFeed();
+    WakelockPlus.disable();
     _stopTimer();
   }
 
@@ -105,10 +115,9 @@ class ExerciseRepository extends ChangeNotifier {
     if (!_canProcess) return;
     if (_isBusy) return;
     _isBusy = true;
-    notifyListeners();
     await _paintLines(inputImage);
     _isBusy = false;
-    notifyListeners();
+    if (hasListeners) notifyListeners();
   }
 
   Future<void> _paintLines(InputImage inputImage) async {
@@ -173,16 +182,15 @@ class ExerciseRepository extends ChangeNotifier {
   }
 
   Future stopLiveFeed() async {
-    await controller?.stopImageStream();
-    // await controller?.dispose();
-    // controller = null;
+    if (controller?.value.isStreamingImages == true) {
+      await controller?.stopImageStream();
+    }
   }
 
   Future switchLiveCamera() async {
     changingCameraLens = true;
     notifyListeners();
     cameraIndex = (cameraIndex + 1) % cameras.length;
-
     await stopLiveFeed();
     await startLiveFeed();
     changingCameraLens = false;

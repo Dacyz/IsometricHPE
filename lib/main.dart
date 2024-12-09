@@ -1,6 +1,7 @@
 import 'package:app_position/core/const.dart';
 import 'package:app_position/features/providers/camera.dart';
 import 'package:app_position/features/voice/presentation/voice_repository.dart';
+import 'package:app_position/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -15,6 +16,7 @@ void main() async {
   // Initialize Hive
   final directory = await getApplicationDocumentsDirectory();
   await Hive.initFlutter(directory.path);
+  ServiceLocator.setup();
   runApp(const MainApp());
 }
 
@@ -25,12 +27,16 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => Camera()),
-        ChangeNotifierProvider(create: (_) => VoiceRepository(), lazy: false,),
+        ChangeNotifierProvider(create: (_) => getIt<Camera>()),
+        ChangeNotifierProvider(
+          create: (_) => getIt<VoiceRepository>(),
+          lazy: false,
+        ),
       ],
       child: MaterialApp(
         title: 'IsometricHPE',
         routes: AppConstants.routes,
+        onGenerateRoute: AppConstants.routing,
         theme: ThemeData.light().copyWith(
           floatingActionButtonTheme: FloatingActionButtonThemeData(
             foregroundColor: AppConstants.colors.primary,

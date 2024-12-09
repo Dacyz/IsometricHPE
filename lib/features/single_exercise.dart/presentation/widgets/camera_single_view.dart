@@ -6,24 +6,19 @@ import 'package:duration_picker/duration_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class SingleExerciseView extends StatefulWidget {
-  const SingleExerciseView({
-    Key? key,
-    required this.exercise,
-  }) : super(key: key);
-
-  final Exercise exercise;
+class CameraSingleExercise extends StatefulWidget {
+  const CameraSingleExercise({Key? key}) : super(key: key);
 
   @override
-  State<SingleExerciseView> createState() => _SingleExerciseViewState();
+  State<CameraSingleExercise> createState() => _CameraSingleExerciseState();
 }
 
-class _SingleExerciseViewState extends State<SingleExerciseView> {
-  late ExerciseRepository camera;
+class _CameraSingleExerciseState extends State<CameraSingleExercise> {
+  late SingleExerciseProvider camera;
 
   @override
   void initState() {
-    camera = Provider.of<ExerciseRepository>(context, listen: false);
+    camera = Provider.of<SingleExerciseProvider>(context, listen: false);
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => camera.initialize());
   }
@@ -61,31 +56,38 @@ class _SingleExerciseViewState extends State<SingleExerciseView> {
           ),
         ),
       );
+
   Widget _switchExercise() {
-    final list = camera.currentExercise;
     return Positioned(
       bottom: 32,
       left: 0,
       right: 0,
       child: SizedBox(
         height: 86,
-        child: _exerciseButton(list),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: GestureDetector(
+            onTap: _editDuration,
+            child: _exerciseButton(),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _exerciseButton(Exercise index, {bool showDetails = false}) {
+  Widget _exerciseButton() {
+    final single = context.watch<SingleExerciseProvider>();
     return Hero(
-      tag: index.heroTag,
+      tag: single.currentExercise.heroTag,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         height: 72,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: camera.currentExercise == index || index.isDone
+          color: single.currentExercise.isDone
               ? AppConstants.colors.primary
               : AppConstants.colors.disabled,
-          gradient: camera.currentExercise == index && camera.isTimerRunning
+          gradient: camera.isTimerRunning
               ? LinearGradient(
                   colors: [
                     AppConstants.colors.primary,
@@ -99,23 +101,22 @@ class _SingleExerciseViewState extends State<SingleExerciseView> {
               : null,
           borderRadius: BorderRadius.circular(32),
         ),
-        child: index.type == ExerciseType.exercise || showDetails
+        child: single.currentExercise.type == ExerciseType.exercise
             ? RichText(
                 text: TextSpan(
-                    text: index.name,
+                    text: single.currentExercise.name,
                     children: [
                       TextSpan(
-                        text: camera.isTimerRunning &&
-                                camera.currentExercise == index
-                            ? '\n${index.timer}'
-                            : '\n${index.duration}',
+                        text: camera.isTimerRunning
+                            ? '\n${single.currentExercise.timer}'
+                            : '\n${single.currentExercise.duration}',
                         style: const TextStyle(
                           fontWeight: FontWeight.w400,
                           fontSize: 12,
                         ),
                       ),
                       TextSpan(
-                        text: ' ${index.isDone ? '✓' : ''}',
+                        text: ' ${single.currentExercise.isDone ? '✓' : ''}',
                         style: const TextStyle(
                           fontWeight: FontWeight.w400,
                           fontSize: 12,
@@ -124,11 +125,9 @@ class _SingleExerciseViewState extends State<SingleExerciseView> {
                     ],
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
-                      color: camera.currentExercise == index
-                          ? !camera.isTimerRunning
-                              ? AppConstants.colors.disabled
-                              : Colors.black
-                          : index.isDone
+                      color: !camera.isTimerRunning
+                          ? AppConstants.colors.primary
+                          : single.currentExercise.isDone
                               ? AppConstants.colors.disabled
                               : AppConstants.colors.primary,
                     )),
@@ -136,11 +135,9 @@ class _SingleExerciseViewState extends State<SingleExerciseView> {
               )
             : Icon(
                 Icons.timer,
-                color: camera.currentExercise == index
-                    ? !camera.isTimerRunning
-                        ? AppConstants.colors.disabled
-                        : Colors.black
-                    : index.isDone
+                color: !camera.isTimerRunning
+                    ? AppConstants.colors.primary
+                    : single.currentExercise.isDone
                         ? AppConstants.colors.disabled
                         : AppConstants.colors.primary,
               ),
@@ -149,7 +146,7 @@ class _SingleExerciseViewState extends State<SingleExerciseView> {
   }
 
   Widget _liveFeedBody() {
-    final camera = Provider.of<ExerciseRepository>(context);
+    final camera = context.watch<SingleExerciseProvider>();
     if (camera.cameras.isEmpty) return const SizedBox();
     if (camera.controller == null) return const SizedBox();
     if (camera.controller?.value.isInitialized == false) {
@@ -182,14 +179,15 @@ class _SingleExerciseViewState extends State<SingleExerciseView> {
     );
   }
 
-  void _editDuration(Exercise exercise) {
+  void _editDuration() {
+    final single = context.read<SingleExerciseProvider>();
     Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false,
         barrierDismissible: true,
         transitionDuration: const Duration(milliseconds: 300),
         pageBuilder: (BuildContext context, _, __) {
-          Duration duration = exercise.time;
+          Duration duration = single.currentExercise.time;
           return StatefulBuilder(builder: (context, state) {
             return FadeTransition(
               opacity: _.drive(CurveTween(curve: Curves.easeInOutCubic)),
@@ -212,7 +210,7 @@ class _SingleExerciseViewState extends State<SingleExerciseView> {
                             text: 'Modifica el tiempo de\n',
                             children: [
                               TextSpan(
-                                text: exercise.name,
+                                text: single.currentExercise.name,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 20,
@@ -229,14 +227,13 @@ class _SingleExerciseViewState extends State<SingleExerciseView> {
                           duration: duration,
                           baseUnit: BaseUnit.second,
                           onChange: (val) {
-                            exercise.time = val;
+                            single.currentExercise.time = val;
                             state(() => duration = val);
                           },
-                          snapToMins: 5.0,
                         ),
                         GestureDetector(
                           onTap: () => Navigator.pop(context),
-                          child: _exerciseButton(exercise, showDetails: true),
+                          child: _exerciseButton(),
                         ),
                       ],
                     ),
@@ -252,9 +249,7 @@ class _SingleExerciseViewState extends State<SingleExerciseView> {
 }
 
 class _BackButton extends StatelessWidget {
-  const _BackButton({
-    super.key,
-  });
+  const _BackButton();
 
   @override
   Widget build(BuildContext context) {

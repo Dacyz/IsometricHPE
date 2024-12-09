@@ -8,8 +8,8 @@ import 'package:app_position/features/models/pose_detail/pose.dart' as kit;
 import 'package:app_position/features/models/pose_detail/pose_detail.dart';
 import 'package:app_position/features/models/routine/routine.dart';
 import 'package:app_position/features/providers/hive.dart';
-import 'package:app_position/features/providers/settings.dart';
 import 'package:app_position/features/views/widgets/pose_painter.dart';
+import 'package:app_position/features/voice/presentation/voice_repository.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -18,9 +18,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
-class Camera extends ChangeNotifier with Settings, BD {
-  Camera() {
-    _initTTS();
+class Camera extends ChangeNotifier with BD {
+  final VoiceRepository _voiceRepository;
+  Camera(this._voiceRepository) {
     initExercises();
     _initBD();
     _initDevice();
@@ -38,27 +38,6 @@ class Camera extends ChangeNotifier with Settings, BD {
       versionName = 'Unknown';
       versionCode = 'Unknown';
       debugPrint(e.toString());
-    }
-  }
-
-  void _initTTS() async {
-    final voiceList = await flutterTts.getVoices;
-    flutterTts.awaitSpeakCompletion(true);
-    try {
-      final voicesList = List<Map>.from(voiceList);
-      for (var element in voicesList) {
-        final e = element['locale'] as String;
-        // if (e.contains('es') || e.contains('en')) {
-        if (e.contains('es')) {
-          availableVoices.add(element);
-          if (!localeVoices.contains(e)) {
-            localeVoices.add(e);
-          }
-        }
-      }
-      notifyListeners();
-    } catch (ex) {
-      debugPrint(ex.toString());
     }
   }
 
@@ -120,7 +99,7 @@ class Camera extends ChangeNotifier with Settings, BD {
   void _startTimer([Exercise? currentExercise]) {
     final exercise = currentExercise ?? this.currentExercise;
     isTimerRunning = true;
-    talk(exercise.name);
+    _voiceRepository.talk(exercise.name);
     bool isBecomingOtherExercise = false;
     timer = Timer.periodic(
       const Duration(milliseconds: 10),
@@ -131,9 +110,9 @@ class Camera extends ChangeNotifier with Settings, BD {
         if (millisecondsElapsed >= exercise.time.inMilliseconds - 3200 && !isBecomingOtherExercise) {
           isBecomingOtherExercise = true;
           if (exercise.type == ExerciseType.rest) {
-            talk('Prepárate');
+            _voiceRepository.talk('Prepárate');
           } else {
-            talk('3 segundos');
+            _voiceRepository.talk('3 segundos');
           }
         }
         if (millisecondsElapsed >= exercise.time.inMilliseconds) {
@@ -253,7 +232,7 @@ class Camera extends ChangeNotifier with Settings, BD {
             errorCounter++;
             debugPrint(errorCounter.toString());
             if (errorCounter % 25 == 0) {
-              talk(value, false);
+              _voiceRepository.talk(value, false);
             }
           }
         },
@@ -312,7 +291,7 @@ class Camera extends ChangeNotifier with Settings, BD {
   void pause([bool speak = true]) {
     isPaused = true;
     if (speak) {
-      talk('Pausado');
+      _voiceRepository.talk('Pausado');
     }
     notifyListeners();
   }
@@ -320,7 +299,7 @@ class Camera extends ChangeNotifier with Settings, BD {
   void resume([bool speak = true]) {
     isPaused = false;
     if (speak) {
-      talk('Reanudado');
+      _voiceRepository.talk('Reanudado');
     }
     notifyListeners();
   }

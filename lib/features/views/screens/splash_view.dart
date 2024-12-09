@@ -1,5 +1,7 @@
 import 'package:app_position/core/const.dart';
+import 'package:app_position/features/data/exercise.dart';
 import 'package:app_position/features/providers/camera.dart';
+import 'package:app_position/features/single_exercise.dart/presentation/single_exercise_view.dart';
 import 'package:app_position/features/views/screens/about_view.dart';
 import 'package:app_position/features/views/screens/pose_detector_view.dart';
 import 'package:app_position/features/views/screens/progress_view.dart';
@@ -11,7 +13,7 @@ import 'package:provider/provider.dart';
 
 class SplashView extends StatelessWidget {
   const SplashView({super.key});
-  static const String route = '/splash';
+  static const String route = '/';
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +73,11 @@ class SplashView extends StatelessWidget {
               ),
               const SizedBox(height: 20.0),
               // Botones
+              CustomElevatedButton(
+                title: 'Single',
+                onPressed: () => Navigator.pushNamed(context, SingleExerciseView.route, arguments: data.first),
+              ),
+              const SizedBox(height: 10.0),
               CustomElevatedButton(
                 title: 'Ejercitarse',
                 onPressed: () => Navigator.pushNamed(context, PoseDetectorView.route),
