@@ -1,5 +1,6 @@
 import 'package:app_position/core/const.dart';
-import 'package:app_position/features/providers/camera.dart';
+import 'package:app_position/features/database/presentation/database_repository.dart';
+import 'package:app_position/features/routine/presentation/routine_repository.dart';
 import 'package:app_position/features/voice/presentation/voice_repository.dart';
 import 'package:app_position/service_locator.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,14 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => getIt<Camera>()),
+        ChangeNotifierProvider(
+          create: (_) => getIt<RoutineRepository>(),
+          lazy: false,
+        ),
+        ChangeNotifierProvider(
+          create: (_) => getIt<HiveRepository>(),
+          lazy: false,
+        ),
         ChangeNotifierProvider(
           create: (_) => getIt<VoiceRepository>(),
           lazy: false,

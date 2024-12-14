@@ -1,7 +1,9 @@
+import 'package:app_position/core/widgets/timer_text.dart';
+import 'package:app_position/features/database/presentation/database_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app_position/core/const.dart';
-import 'package:app_position/features/providers/camera.dart';
+import 'package:app_position/features/routine/presentation/routine_repository.dart';
 import 'package:app_position/features/views/widgets/camera_view.dart';
 import 'package:app_position/features/views/widgets/custom_elevated_button.dart';
 
@@ -16,13 +18,12 @@ class PoseDetectorView extends StatefulWidget {
 class _PoseDetectorViewState extends State<PoseDetectorView> {
   @override
   Widget build(BuildContext context) {
-    final camera = Provider.of<Camera>(context);
+    final camera = Provider.of<RoutineRepository>(context);
     return Scaffold(
       body: Column(
         children: [
           const Expanded(child: CameraView()),
           Container(
-            color: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 24),
             width: double.infinity,
             child: Column(
@@ -53,47 +54,65 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
                         highlightElevation: 0,
                         backgroundColor: Colors.white,
                         child: Icon(
-                          camera.isPaused ? Icons.play_arrow_outlined : Icons.pause,
+                          camera.isPaused
+                              ? Icons.play_arrow_outlined
+                              : Icons.pause,
                           color: AppConstants.colors.primary,
                           size: 25,
                         ),
                       )
                     ],
-                    if (!camera.isTimerRunning && camera.showExportButton) ...[
-                      const SizedBox(width: 8),
-                      FloatingActionButton(
-                        heroTag: "btn4",
-                        elevation: 0,
-                        shape: CircleBorder(side: BorderSide(color: AppConstants.colors.primary)),
-                        onPressed: () {
-                          camera.export(context);
-                        },
-                        highlightElevation: 0,
-                        backgroundColor: Colors.white,
-                        child: camera.isLoading
-                            ? const CircularProgressIndicator()
-                            : Icon(
-                                camera.isError
-                                    ? Icons.close
-                                    : camera.isCompleted
-                                        ? Icons.file_download_done_outlined
-                                        : Icons.file_download_outlined,
-                                color: camera.isError ? Colors.red : AppConstants.colors.primary,
-                                size: 25,
-                              ),
-                      ),
-                    ],
+                    if (!camera.isTimerRunning)
+                      Consumer<HiveRepository>(builder: (context, value, _) {
+                        if (value.showExportButton) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const SizedBox(width: 8),
+                              FloatingActionButton(
+                                  heroTag: "btn4",
+                                  elevation: 0,
+                                  shape: CircleBorder(
+                                      side: BorderSide(
+                                          color: AppConstants.colors.primary)),
+                                  onPressed: () {
+                                    camera.export(context);
+                                  },
+                                  highlightElevation: 0,
+                                  backgroundColor: Colors.transparent,
+                                  child: value.isLoading
+                                      ? const CircularProgressIndicator()
+                                      : Icon(
+                                          value.isError
+                                              ? Icons.close
+                                              : value.isCompleted
+                                                  ? Icons
+                                                      .file_download_done_outlined
+                                                  : Icons
+                                                      .file_download_outlined,
+                                          color: value.isError
+                                              ? Colors.red
+                                              : AppConstants.colors.primary,
+                                          size: 25,
+                                        )),
+                            ],
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      }),
                     const SizedBox(width: 8),
                     !camera.isTimerRunning
                         ? FloatingActionButton(
                             heroTag: "btn2",
                             elevation: 0,
-                            shape: CircleBorder(side: BorderSide(color: AppConstants.colors.primary)),
+                            shape: CircleBorder(
+                                side: BorderSide(
+                                    color: AppConstants.colors.primary)),
                             onPressed: () {
                               camera.switchLiveCamera();
                             },
                             highlightElevation: 0,
-                            backgroundColor: Colors.white,
+                            backgroundColor: Colors.transparent,
                             child: Icon(
                               Icons.flip_camera_android_outlined,
                               color: AppConstants.colors.primary,
@@ -104,13 +123,14 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
                             heroTag: "btn3",
                             elevation: 0,
                             shape: CircleBorder(
-                              side: BorderSide(color: AppConstants.colors.primary),
+                              side: BorderSide(
+                                  color: AppConstants.colors.primary),
                             ),
                             onPressed: () {
                               _sureCancel(camera);
                             },
                             highlightElevation: 0,
-                            backgroundColor: Colors.white,
+                            backgroundColor: Colors.transparent,
                             child: Icon(
                               Icons.close,
                               color: AppConstants.colors.primary,
@@ -120,30 +140,15 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                Hero(
-                  tag: 'timer',
-                  child: Material(
-                    color: Colors.transparent,
-                    child: Text(
-                      camera.time,
-                      maxLines: 1,
-                      overflow: TextOverflow.clip,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 72,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
+                const TimerText<RoutineRepository>(),
                 const SizedBox(height: 16),
-                LinearProgressIndicator(
-                  value: camera.fullProgress,
-                  minHeight: 8,
-                  borderRadius: BorderRadius.circular(8),
-                  color: AppConstants.colors.primary,
-                ),
-                const SizedBox(height: 16),
+                // LinearProgressIndicator(
+                //   value: camera.fullProgress,
+                //   minHeight: 8,
+                //   borderRadius: BorderRadius.circular(8),
+                //   color: AppConstants.colors.primary,
+                // ),
+                // const SizedBox(height: 16),
               ],
             ),
           ),
@@ -152,7 +157,7 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
     );
   }
 
-  void _sureCancel(Camera camera) async {
+  void _sureCancel(RoutineRepository camera) async {
     camera.pause(false);
     final result = await Navigator.push<bool>(
       context,

@@ -1,9 +1,10 @@
 import 'package:app_position/features/models/exercise/exercise.dart';
+import 'package:app_position/features/single_exercise.dart/presentation/select_exercise_view.dart';
 import 'package:app_position/features/single_exercise.dart/presentation/single_exercise_view.dart';
 import 'package:app_position/features/single_exercise.dart/presentation/single_exercise.dart';
 import 'package:app_position/features/views/screens/about_view.dart';
 import 'package:app_position/features/views/screens/pose_detector_view.dart';
-import 'package:app_position/features/views/screens/progress_view.dart';
+import 'package:app_position/features/database/presentation/progress_view.dart';
 import 'package:app_position/features/views/screens/settings_view.dart';
 import 'package:app_position/features/views/screens/splash_view.dart';
 import 'package:app_position/features/voice/presentation/voice_repository.dart';
@@ -18,6 +19,7 @@ class AppConstants {
     PoseDetectorView.route: (_) => const PoseDetectorView(),
     SettingsView.route: (_) => const SettingsView(),
     ProgressView.route: (_) => const ProgressView(),
+    SelectExerciseView.route: (_) => const SelectExerciseView(),
     AboutView.route: (_) => const AboutView(),
   };
 
@@ -37,10 +39,6 @@ class AppConstants {
   }
 
   static const initialRoute = SplashView.route;
-
-  static const String dbName = 'AppPosition';
-  static const String dbBox = 'exercises';
-
   static final ConstantColors colors = ConstantColors();
 }
 

@@ -1,16 +1,14 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:app_position/core/const.dart';
 import 'package:app_position/core/extensions/integer.dart';
+import 'package:app_position/core/models/exercise_provider.dart';
 import 'package:app_position/features/data/exercise.dart';
 import 'package:app_position/features/models/exercise/exercise.dart';
 import 'package:app_position/features/models/pose_detail/pose.dart' as kit;
 import 'package:app_position/features/models/pose_detail/pose_detail.dart';
-import 'package:app_position/features/models/routine/routine.dart';
-import 'package:app_position/features/providers/hive.dart';
+import 'package:app_position/features/database/presentation/database_repository.dart';
 import 'package:app_position/features/views/widgets/pose_painter.dart';
 import 'package:app_position/features/voice/presentation/voice_repository.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:camera/camera.dart';
@@ -18,16 +16,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
-class Camera extends ChangeNotifier with BD {
+class RoutineRepository extends ExerciseInterfaceProvider {
   final VoiceRepository _voiceRepository;
-  Camera(this._voiceRepository) {
+  final HiveRepository _databaseRepository;
+  RoutineRepository(this._voiceRepository, this._databaseRepository) {
     initExercises();
-    _initBD();
     _initDevice();
   }
 
   late final String versionName;
   late final String versionCode;
+
+  final barController = ScrollController();
 
   void _initDevice() async {
     try {
@@ -38,21 +38,6 @@ class Camera extends ChangeNotifier with BD {
       versionName = 'Unknown';
       versionCode = 'Unknown';
       debugPrint(e.toString());
-    }
-  }
-
-  void _initBD() async {
-    try {
-      // Open your box. Optional: Give it a type.
-      Hive.registerAdapter(RoutineAdapter());
-      Hive.registerAdapter(PoseDetailAdapter());
-      Hive.registerAdapter(kit.PoseAdapter());
-      Hive.registerAdapter(kit.PoseLandmarkAdapter());
-      Hive.registerAdapter(ExerciseModelAdapter());
-      Hive.registerAdapter(ExerciseTypeAdapter());
-      exerciseBox = await Hive.openBox<Routine>(AppConstants.dbBox);
-    } catch (ex) {
-      debugPrint('initBD ${ex.toString()}');
     }
   }
 
@@ -79,9 +64,13 @@ class Camera extends ChangeNotifier with BD {
     notifyListeners();
   }
 
-  int get fullTime =>
-      listExercises.reduce((value, element) => element.copyWith(time: value.time + element.time)).time.inSeconds;
+  int get fullTime => listExercises
+      .reduce(
+          (value, element) => element.copyWith(time: value.time + element.time))
+      .time
+      .inSeconds;
   int get totalTime => fullTime * 1000;
+  @override
   String get time =>
       '${(fullMillisecondsElapsed ~/ 60000).toString().padLeft(2, '0')}:${((fullMillisecondsElapsed ~/ 1000) % 60).toString().padLeft(2, '0')}.${((fullMillisecondsElapsed % 1000) ~/ 10).toString().padLeft(2, '0')}';
   CameraController? controller;
@@ -90,7 +79,7 @@ class Camera extends ChangeNotifier with BD {
 
   bool isTimerRunning = false;
   bool isPaused = false;
-  bool showExportButton = false;
+
   int millisecondsElapsed = 0;
   int errorCounter = 0;
   int _lastDuration = 0;
@@ -102,12 +91,13 @@ class Camera extends ChangeNotifier with BD {
     _voiceRepository.talk(exercise.name);
     bool isBecomingOtherExercise = false;
     timer = Timer.periodic(
-      const Duration(milliseconds: 10),
+      const Duration(milliseconds: 50),
       (Timer t) {
         if (isPaused) return;
-        millisecondsElapsed += 10;
+        millisecondsElapsed += 50;
         exercise.millisecondsElapsed = millisecondsElapsed;
-        if (millisecondsElapsed >= exercise.time.inMilliseconds - 3200 && !isBecomingOtherExercise) {
+        if (millisecondsElapsed >= exercise.time.inMilliseconds - 3200 &&
+            !isBecomingOtherExercise) {
           isBecomingOtherExercise = true;
           if (exercise.type == ExerciseType.rest) {
             _voiceRepository.talk('Prepárate');
@@ -126,7 +116,15 @@ class Camera extends ChangeNotifier with BD {
             _startTimer(this.currentExercise);
             return;
           }
-          showExportButton = true;
+          _databaseRepository.showExportButton = true;
+        }
+        if (barController.hasClients) {
+          var jumpValue = barController.position.maxScrollExtent * fullProgress;
+          jumpValue =
+              jumpValue.clamp(0, barController.position.maxScrollExtent);
+          if (jumpValue % 10 != 0 || jumpValue != barController.offset) {
+            barController.jumpTo(jumpValue);
+          }
         }
         notifyListeners();
       },
@@ -159,28 +157,32 @@ class Camera extends ChangeNotifier with BD {
     }
     millisecondsElapsed = 0;
     currentExercise = listExercises.first;
-    showExportButton = true;
+    _databaseRepository.showExportButton = true;
     isPaused = false;
     _stopTimer();
   }
 
   void export(BuildContext context) async {
     final newPoses = currentPoseList.toList(growable: false);
-    final newId = await putRoutine(detail: newPoses, date: DateTime.now(), duration: _lastDuration.toDuration);
+    final newId = await _databaseRepository.putRoutine(
+        detail: newPoses,
+        date: DateTime.now(),
+        duration: _lastDuration.toDuration);
     if (newId != -1) {
       currentPoseList.clear();
     }
     Future.delayed(const Duration(seconds: 5), () {
-      showExportButton = false;
-      resetStatus();
+      _databaseRepository.resetStatus();
     });
     notifyListeners();
   }
 
-  double get exerciseProgress => millisecondsElapsed / currentExercise.time.inMilliseconds;
+  double get exerciseProgress =>
+      millisecondsElapsed / currentExercise.time.inMilliseconds;
   int get fullMillisecondsElapsed => listExercises
-      .reduce((value, element) =>
-          element.copyWith(millisecondsElapsed: value.millisecondsElapsed + element.millisecondsElapsed))
+      .reduce((value, element) => element.copyWith(
+          millisecondsElapsed:
+              value.millisecondsElapsed + element.millisecondsElapsed))
       .millisecondsElapsed;
   double get fullProgress => fullMillisecondsElapsed / totalTime;
 
@@ -190,7 +192,8 @@ class Camera extends ChangeNotifier with BD {
     }
   }
 
-  final PoseDetector _poseDetector = PoseDetector(options: PoseDetectorOptions(model: PoseDetectionModel.base));
+  final PoseDetector _poseDetector = PoseDetector(
+      options: PoseDetectorOptions(model: PoseDetectionModel.base));
 
   bool _canProcess = true;
   bool _isBusy = false;
@@ -213,12 +216,15 @@ class Camera extends ChangeNotifier with BD {
 
   Future<void> _paintLines(InputImage inputImage) async {
     final poses = await _poseDetector.processImage(inputImage);
-    if (poses.isEmpty || inputImage.metadata?.size == null || inputImage.metadata?.rotation == null) {
+    if (poses.isEmpty ||
+        inputImage.metadata?.size == null ||
+        inputImage.metadata?.rotation == null) {
       customPaint = null;
       return;
     }
     if (isTimerRunning && !isPaused && millisecondsElapsed % 25 == 0) {
-      currentPoseList.add(PoseDetail(kit.Pose.fromHive(poses.first), exercise: currentExercise));
+      currentPoseList.add(PoseDetail(kit.Pose.fromHive(poses.first),
+          exercise: currentExercise));
     }
     customPaint = CustomPaint(
       painter: PosePainter(
@@ -263,7 +269,9 @@ class Camera extends ChangeNotifier with BD {
       // Set to ResolutionPreset.high. Do NOT set it to ResolutionPreset.max because for some phones does NOT work.
       ResolutionPreset.low,
       enableAudio: false,
-      imageFormatGroup: Platform.isAndroid ? ImageFormatGroup.nv21 : ImageFormatGroup.bgra8888,
+      imageFormatGroup: Platform.isAndroid
+          ? ImageFormatGroup.nv21
+          : ImageFormatGroup.bgra8888,
     );
     if (controller == null) return;
     await controller?.initialize();
@@ -310,7 +318,7 @@ class Camera extends ChangeNotifier with BD {
       if (customPaint != null) {
         customPaint = null;
         notifyListeners();
-      } 
+      }
       return;
     }
     final inputImage = _inputImageFromCameraImage(image);
@@ -340,14 +348,16 @@ class Camera extends ChangeNotifier with BD {
     if (Platform.isIOS) {
       rotation = InputImageRotationValue.fromRawValue(sensorOrientation);
     } else if (Platform.isAndroid) {
-      var rotationCompensation = _orientations[controller!.value.deviceOrientation];
+      var rotationCompensation =
+          _orientations[controller!.value.deviceOrientation];
       if (rotationCompensation == null) return null;
       if (camera.lensDirection == CameraLensDirection.front) {
         // front-facing
         rotationCompensation = (sensorOrientation + rotationCompensation) % 360;
       } else {
         // back-facing
-        rotationCompensation = (sensorOrientation - rotationCompensation + 360) % 360;
+        rotationCompensation =
+            (sensorOrientation - rotationCompensation + 360) % 360;
       }
       rotation = InputImageRotationValue.fromRawValue(rotationCompensation);
       // print('rotationCompensation: $rotationCompensation');

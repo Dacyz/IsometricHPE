@@ -1,23 +1,34 @@
+import 'package:app_position/features/models/exercise/exercise.dart';
 import 'package:app_position/features/models/pose_detail/pose_detail.dart';
 import 'package:app_position/features/models/routine/routine.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:app_position/features/models/pose_detail/pose.dart' as kit;
 
 enum BoxStatus { loading, start, error, completed }
 
-mixin BD on ChangeNotifier {
+class HiveRepository with ChangeNotifier {
+  static const String dbName = 'AppPosition';
+  static const String dbBox = 'exercises';
+
+  HiveRepository() {
+    _initBD();
+  }
   late final BoxCollection collection;
-  // Open your boxes. Optional: Give it a type.
   late final Box<Routine> exerciseBox;
 
   BoxStatus _status = BoxStatus.start;
+  bool showExportButton = false;
 
   set status(BoxStatus value) {
     _status = value;
     notifyListeners();
   }
 
-  void resetStatus() => _status = BoxStatus.start;
+  void resetStatus() {
+    _status = BoxStatus.start;
+    showExportButton = false;
+  }
 
   bool get isStart => _status == BoxStatus.start;
   bool get isLoading => _status == BoxStatus.loading;
@@ -46,6 +57,21 @@ mixin BD on ChangeNotifier {
       debugPrint(e.toString());
       _status = BoxStatus.error;
       return -1;
+    }
+  }
+
+  void _initBD() async {
+    try {
+      // Open your box. Optional: Give it a type.
+      Hive.registerAdapter(RoutineAdapter());
+      Hive.registerAdapter(PoseDetailAdapter());
+      Hive.registerAdapter(kit.PoseAdapter());
+      Hive.registerAdapter(kit.PoseLandmarkAdapter());
+      Hive.registerAdapter(ExerciseModelAdapter());
+      Hive.registerAdapter(ExerciseTypeAdapter());
+      exerciseBox = await Hive.openBox<Routine>(dbBox);
+    } catch (ex) {
+      debugPrint('initBD ${ex.toString()}');
     }
   }
 }

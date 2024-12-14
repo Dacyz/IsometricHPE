@@ -1,4 +1,4 @@
-import 'package:app_position/features/providers/camera.dart';
+import 'package:app_position/features/database/presentation/database_repository.dart';
 import 'package:app_position/features/views/screens/detail_progress_view.dart';
 import 'package:app_position/features/views/widgets/pose_painter.dart';
 import 'package:flutter/material.dart';
@@ -15,8 +15,8 @@ class ProgressView extends StatefulWidget {
 class _ProgressViewState extends State<ProgressView> {
   @override
   Widget build(BuildContext context) {
-    final camera = Provider.of<Camera>(context);
-    if (camera.exerciseBox.values.isEmpty) {
+    final values = context.watch<HiveRepository>();
+    if (values.exerciseBox.values.isEmpty) {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Progreso'),
@@ -39,7 +39,7 @@ class _ProgressViewState extends State<ProgressView> {
             child: ListView.separated(
               separatorBuilder: (context, index) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
-                final routine = camera.exerciseBox.values.elementAt(index);
+                final routine = values.exerciseBox.values.elementAt(index);
                 return ListTile(
                   leading: routine.detail.isEmpty
                       ? const Icon(Icons.run_circle_outlined)
@@ -59,7 +59,7 @@ class _ProgressViewState extends State<ProgressView> {
                   },
                 );
               },
-              itemCount: camera.exerciseBox.values.length,
+              itemCount: values.exerciseBox.values.length,
             ),
           ),
         ],

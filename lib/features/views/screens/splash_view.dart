@@ -1,15 +1,13 @@
 import 'package:app_position/core/const.dart';
-import 'package:app_position/features/data/exercise.dart';
-import 'package:app_position/features/providers/camera.dart';
-import 'package:app_position/features/single_exercise.dart/presentation/single_exercise_view.dart';
+import 'package:app_position/features/single_exercise.dart/presentation/select_exercise_view.dart';
 import 'package:app_position/features/views/screens/about_view.dart';
 import 'package:app_position/features/views/screens/pose_detector_view.dart';
-import 'package:app_position/features/views/screens/progress_view.dart';
+import 'package:app_position/features/database/presentation/progress_view.dart';
 import 'package:app_position/features/views/screens/settings_view.dart';
 import 'package:app_position/features/views/widgets/custom_elevated_button.dart';
+import 'package:app_position/features/views/widgets/custom_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:provider/provider.dart';
 
 class SplashView extends StatelessWidget {
   const SplashView({super.key});
@@ -17,7 +15,6 @@ class SplashView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<Camera>(context, listen: false);
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -26,7 +23,6 @@ class SplashView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Icono grande
               Expanded(
                 child: Stack(
                   children: [
@@ -44,8 +40,11 @@ class SplashView extends StatelessWidget {
                       child: FloatingActionButton(
                         heroTag: "btnSplash",
                         elevation: 0,
-                        shape: CircleBorder(side: BorderSide(color: AppConstants.colors.primary)),
-                        onPressed: () => Navigator.pushNamed(context, AboutView.route),
+                        shape: CircleBorder(
+                            side:
+                                BorderSide(color: AppConstants.colors.primary)),
+                        onPressed: () =>
+                            Navigator.pushNamed(context, AboutView.route),
                         highlightElevation: 0,
                         backgroundColor: Colors.transparent,
                         child: Text(
@@ -72,25 +71,36 @@ class SplashView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20.0),
-              // Botones
-              CustomElevatedButton(
-                title: 'Single',
-                onPressed: () => Navigator.pushNamed(context, SingleExerciseView.route, arguments: data.first),
-              ),
-              const SizedBox(height: 10.0),
-              CustomElevatedButton(
-                title: 'Ejercitarse',
-                onPressed: () => Navigator.pushNamed(context, PoseDetectorView.route),
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomElevatedButton(
+                      title: 'Ejercitarse',
+                      onPressed: () =>
+                          Navigator.pushNamed(context, PoseDetectorView.route),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  CustomIconButton(
+                    Icons.one_x_mobiledata_rounded,
+                    color: AppConstants.colors.disabled,
+                    backgroundColor: AppConstants.colors.primary,
+                    onTap: () =>
+                        Navigator.pushNamed(context, SelectExerciseView.route),
+                  ),
+                ],
               ),
               const SizedBox(height: 10.0),
               CustomElevatedButton.outlined(
                 title: 'Progreso',
-                onPressed: () => Navigator.pushNamed(context, ProgressView.route),
+                onPressed: () =>
+                    Navigator.pushNamed(context, ProgressView.route),
               ),
               const SizedBox(height: 10.0),
               CustomElevatedButton.outlined(
                 title: 'Configuración',
-                onPressed: () => Navigator.pushNamed(context, SettingsView.route),
+                onPressed: () =>
+                    Navigator.pushNamed(context, SettingsView.route),
               ),
             ],
           ),

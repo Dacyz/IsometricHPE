@@ -6,16 +6,23 @@ class CustomElevatedButton extends StatelessWidget {
   final String title;
   final Widget child;
 
-  CustomElevatedButton({super.key, this.onPressed, required this.title, final IconData? icon})
+  const CustomElevatedButton.icon(
+      {super.key, this.onPressed, required this.title, required this.child});
+
+  CustomElevatedButton(
+      {super.key, this.onPressed, required this.title, final IconData? icon})
       : child = icon == null
             ? ElevatedButton(
                 style: ButtonStyle(
-                  shape: MaterialStateProperty.all(
-                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                  shape: WidgetStateProperty.all(
+                    RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50)),
                   ),
-                  padding: MaterialStateProperty.all(const EdgeInsets.all(16)),
-                  backgroundColor: MaterialStateColor.resolveWith(
-                    (states) => states.contains(MaterialState.disabled) ? Colors.grey : AppConstants.colors.primary,
+                  padding: WidgetStateProperty.all(const EdgeInsets.all(16)),
+                  backgroundColor: WidgetStateColor.resolveWith(
+                    (states) => states.contains(WidgetState.disabled)
+                        ? Colors.grey
+                        : AppConstants.colors.primary,
                   ),
                 ),
                 onPressed: onPressed,
@@ -31,12 +38,15 @@ class CustomElevatedButton extends StatelessWidget {
             : ElevatedButton.icon(
                 icon: Icon(icon, color: Colors.white),
                 style: ButtonStyle(
-                  shape: MaterialStateProperty.all(
-                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                  shape: WidgetStateProperty.all(
+                    RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50)),
                   ),
-                  padding: MaterialStateProperty.all(const EdgeInsets.all(16)),
-                  backgroundColor: MaterialStateColor.resolveWith(
-                    (states) => states.contains(MaterialState.disabled) ? Colors.grey : AppConstants.colors.primary,
+                  padding: WidgetStateProperty.all(const EdgeInsets.all(16)),
+                  backgroundColor: WidgetStateColor.resolveWith(
+                    (states) => states.contains(WidgetState.disabled)
+                        ? Colors.grey
+                        : AppConstants.colors.primary,
                   ),
                 ),
                 onPressed: onPressed,
@@ -50,20 +60,23 @@ class CustomElevatedButton extends StatelessWidget {
                 ),
               );
 
-  CustomElevatedButton.outlined({super.key, this.onPressed, required this.title, final IconData? icon})
+  CustomElevatedButton.outlined(
+      {super.key, this.onPressed, required this.title, final IconData? icon})
       : child = icon == null
             ? ElevatedButton(
                 style: ButtonStyle(
-                  shape: MaterialStateProperty.all(
+                  shape: WidgetStateProperty.all(
                     RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50), side: BorderSide(color: AppConstants.colors.primary)),
+                        borderRadius: BorderRadius.circular(50),
+                        side: BorderSide(color: AppConstants.colors.primary)),
                   ),
-                  overlayColor: const MaterialStatePropertyAll<Color>(Color(0x12000000)),
-                  padding: MaterialStateProperty.all(const EdgeInsets.all(16)),
-                  backgroundColor: MaterialStateColor.resolveWith(
+                  overlayColor:
+                      const WidgetStatePropertyAll<Color>(Color(0x12000000)),
+                  padding: WidgetStateProperty.all(const EdgeInsets.all(16)),
+                  backgroundColor: WidgetStateColor.resolveWith(
                     (states) => Colors.transparent,
                   ),
-                  shadowColor: const MaterialStatePropertyAll(Colors.transparent),
+                  shadowColor: const WidgetStatePropertyAll(Colors.transparent),
                 ),
                 onPressed: onPressed,
                 child: Text(
@@ -78,13 +91,17 @@ class CustomElevatedButton extends StatelessWidget {
             : ElevatedButton.icon(
                 icon: Icon(icon, color: AppConstants.colors.primary),
                 style: ButtonStyle(
-                  shape: MaterialStateProperty.all(
-                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                  shape: WidgetStateProperty.all(
+                    RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50)),
                   ),
-                  overlayColor: const MaterialStatePropertyAll<Color>(Color(0x00000000)),
-                  padding: MaterialStateProperty.all(const EdgeInsets.all(16)),
-                  backgroundColor: MaterialStateColor.resolveWith(
-                    (states) => states.contains(MaterialState.disabled) ? Colors.grey : AppConstants.colors.primary,
+                  overlayColor:
+                      const WidgetStatePropertyAll<Color>(Color(0x00000000)),
+                  padding: WidgetStateProperty.all(const EdgeInsets.all(16)),
+                  backgroundColor: WidgetStateColor.resolveWith(
+                    (states) => states.contains(WidgetState.disabled)
+                        ? Colors.grey
+                        : AppConstants.colors.primary,
                   ),
                 ),
                 onPressed: onPressed,

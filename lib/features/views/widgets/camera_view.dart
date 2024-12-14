@@ -1,6 +1,6 @@
 import 'package:app_position/core/const.dart';
 import 'package:app_position/features/models/exercise/exercise.dart';
-import 'package:app_position/features/providers/camera.dart';
+import 'package:app_position/features/routine/presentation/routine_repository.dart';
 import 'package:camera/camera.dart';
 import 'package:duration_picker/duration_picker.dart';
 import 'package:flutter/material.dart';
@@ -14,11 +14,11 @@ class CameraView extends StatefulWidget {
 }
 
 class _CameraViewState extends State<CameraView> {
-  late Camera camera;
+  late RoutineRepository camera;
 
   @override
   void initState() {
-    camera = Provider.of<Camera>(context, listen: false);
+    camera = Provider.of<RoutineRepository>(context, listen: false);
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => camera.initialize());
   }
@@ -49,15 +49,16 @@ class _CameraViewState extends State<CameraView> {
         child: Container(
           height: 32,
           width: double.infinity,
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.only(
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(32),
               topRight: Radius.circular(32),
             ),
-            color: Colors.white,
+            color: Theme.of(context).scaffoldBackgroundColor,
           ),
         ),
       );
+
   Widget _switchExercise() {
     final list = camera.listExercises;
     return Positioned(
@@ -68,9 +69,12 @@ class _CameraViewState extends State<CameraView> {
         height: 86,
         child: ListView.separated(
           padding: const EdgeInsets.all(16),
-          physics: const BouncingScrollPhysics(),
+          physics: camera.isTimerRunning && !camera.isPaused
+              ? const NeverScrollableScrollPhysics()
+              : const BouncingScrollPhysics(),
           clipBehavior: Clip.none,
           scrollDirection: Axis.horizontal,
+          controller: camera.barController,
           itemBuilder: (context, index) => GestureDetector(
             onTap: camera.isTimerRunning
                 ? null
@@ -99,12 +103,12 @@ class _CameraViewState extends State<CameraView> {
         decoration: BoxDecoration(
           color: camera.currentExercise == index || index.isDone
               ? AppConstants.colors.primary
-              : AppConstants.colors.disabled,
+              : Theme.of(context).scaffoldBackgroundColor,
           gradient: camera.currentExercise == index && camera.isTimerRunning
               ? LinearGradient(
                   colors: [
                     AppConstants.colors.primary,
-                    AppConstants.colors.disabled,
+                    Theme.of(context).scaffoldBackgroundColor,
                   ],
                   tileMode: TileMode.decal,
                   stops: [camera.exerciseProgress, camera.exerciseProgress],
@@ -142,7 +146,7 @@ class _CameraViewState extends State<CameraView> {
                       color: camera.currentExercise == index
                           ? !camera.isTimerRunning
                               ? AppConstants.colors.disabled
-                              : Colors.black
+                              : Theme.of(context).colorScheme.primary
                           : index.isDone
                               ? AppConstants.colors.disabled
                               : AppConstants.colors.primary,
@@ -164,7 +168,7 @@ class _CameraViewState extends State<CameraView> {
   }
 
   Widget _liveFeedBody() {
-    final camera = Provider.of<Camera>(context);
+    final camera = Provider.of<RoutineRepository>(context);
     if (camera.cameras.isEmpty) return const SizedBox();
     if (camera.controller == null) return const SizedBox();
     if (camera.controller?.value.isInitialized == false) {
@@ -267,9 +271,7 @@ class _CameraViewState extends State<CameraView> {
 }
 
 class _BackButton extends StatelessWidget {
-  const _BackButton({
-    super.key,
-  });
+  const _BackButton();
 
   @override
   Widget build(BuildContext context) {
@@ -284,7 +286,7 @@ class _BackButton extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: AppConstants.colors.disabled,
+            color: Theme.of(context).scaffoldBackgroundColor,
           ),
           child: Icon(
             Icons.arrow_back_ios_outlined,
